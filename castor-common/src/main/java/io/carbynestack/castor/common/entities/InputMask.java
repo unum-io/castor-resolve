@@ -24,15 +24,16 @@ public class InputMask<F extends Field> extends ArrayBackedTuple<InputMask<F>, F
   @JsonCreator
   InputMask(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public InputMask(F field, Share a) {
-    super(field, a);
+  public InputMask(F field, String tupleFamily, Share a) {
+    super(field, tupleFamily, a);
   }
 
-  InputMask(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  InputMask(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

@@ -25,15 +25,16 @@ public class BinaryTriple<F extends Field>
   @JsonCreator
   BinaryTriple(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public BinaryTriple(F field, Share a, Share b, Share c) {
-    super(field, a, b, c);
+  public BinaryTriple(F field, String tupleFamily, Share a, Share b, Share c) {
+    super(field, tupleFamily, a, b, c);
   }
 
-  BinaryTriple(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  BinaryTriple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

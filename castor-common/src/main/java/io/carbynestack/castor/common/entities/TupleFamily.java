@@ -19,8 +19,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TupleFamily {
-  COWGEAR("CowGear", 2, 1, 9),
-  HEMI("Hemi", 1, 64, 8);
+  CowGear("CowGear", 2, true, 1, 9),
+  Hemi("Hemi", 1, false, 64, 8);
 
   /** Name identifier for the given {@link TupleType} */
   @Getter
@@ -29,6 +29,10 @@ public enum TupleFamily {
   /** Name identifier for the given {@link TupleType} */
   @Getter
   Integer multiplier;
+
+  /** MAC check: whether these protocols validate the MAC */
+  @Getter
+  boolean macCheck;
 
   /** edabitvec<T>::MAX_SIZE */
   @Getter

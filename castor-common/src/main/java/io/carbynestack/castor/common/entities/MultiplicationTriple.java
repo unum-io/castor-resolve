@@ -25,15 +25,16 @@ public class MultiplicationTriple<F extends Field>
   @JsonCreator
   MultiplicationTriple(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public MultiplicationTriple(F field, Share a, Share b, Share c) {
-    super(field, a, b, c);
+  public MultiplicationTriple(F field, String tupleFamily, Share a, Share b, Share c) {
+    super(field, tupleFamily, a, b, c);
   }
 
-  MultiplicationTriple(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  MultiplicationTriple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

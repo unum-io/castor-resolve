@@ -23,15 +23,16 @@ public class EdaBit<F extends Field> extends ArrayBackedTuple<EdaBit<F>, F> {
   @JsonCreator
   EdaBit(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public EdaBit(F field, Share a) {
-    super(field, a);
+  public EdaBit(F field, String tupleFamily, Share a) {
+    super(field, tupleFamily, a);
   }
 
-  EdaBit(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  EdaBit(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

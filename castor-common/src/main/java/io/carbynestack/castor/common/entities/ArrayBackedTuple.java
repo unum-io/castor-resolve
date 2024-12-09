@@ -7,6 +7,7 @@
 
 package io.carbynestack.castor.common.entities;
 
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,9 @@ abstract class ArrayBackedTuple<T extends Tuple<T, F>, F extends Field> implemen
   /** The {@link Share}s of this {@link Tuple} */
   Share[] shares;
 
-  /**
+  String tupleFamily;
+
+    /**
    * Creates a new {@link ArrayBackedTuple} with the given {@link Share}s and {@link Field}.
    *
    * @param field the {@link Field} the given {@link ArrayBackedTuple} is element of
@@ -51,7 +54,7 @@ abstract class ArrayBackedTuple<T extends Tuple<T, F>, F extends Field> implemen
    * @throws IllegalArgumentException if the number of given shares does not match this {@link
    *     Tuple}'s arity (see {@link TupleType#getArity()}.
    */
-  ArrayBackedTuple(F field, Share... shares) {
+  ArrayBackedTuple(F field, String tupleFamily, Share... shares) {
     int arity = TupleType.arityForTupleClass(this.getClass());
     if (shares.length != arity) {
       throw new IllegalArgumentException(
@@ -60,6 +63,7 @@ abstract class ArrayBackedTuple<T extends Tuple<T, F>, F extends Field> implemen
     }
     this.field = field;
     this.shares = shares;
+    this.tupleFamily = tupleFamily;
   }
 
   /**
@@ -69,12 +73,13 @@ abstract class ArrayBackedTuple<T extends Tuple<T, F>, F extends Field> implemen
    * @param is the {@link InputStream} to read the data from
    * @throws IOException if the stream does not provide enough data
    */
-  ArrayBackedTuple(F field, InputStream is) throws IOException {
+  ArrayBackedTuple(F field, InputStream is, String tupleFamily) throws IOException {
     this.field = field;
+    this.tupleFamily = tupleFamily;
     int arity = TupleType.arityForTupleClass(this.getClass());
     this.shares = new Share[arity];
     for (int i = 0; i < arity; i++) {
-      this.shares[i] = readShareFromStream(is);
+      this.shares[i] = readShareFromStream(is, tupleFamily);
     }
   }
 
@@ -102,11 +107,16 @@ abstract class ArrayBackedTuple<T extends Tuple<T, F>, F extends Field> implemen
     }
   }
 
-  private Share readShareFromStream(InputStream inputStream) throws IOException {
+  private Share readShareFromStream(InputStream inputStream, String tupleFamily) throws IOException {
     int fieldSize = field.getElementSize();
+    byte[] macBytes;
     try {
       byte[] valueBytes = IOUtils.readFully(inputStream, fieldSize);
-      byte[] macBytes = IOUtils.readFully(inputStream, fieldSize);
+      if(TupleFamily.valueOf(tupleFamily).isMacCheck()) {
+        macBytes = IOUtils.readFully(inputStream, fieldSize);
+      } else {
+        macBytes = field.getMacBytes();
+      }
       return new Share(valueBytes, macBytes);
     } catch (IOException e) {
       throw new IOException(NO_MORE_TUPLE_DATA_AVAILABLE_EXCEPTION_MSG);

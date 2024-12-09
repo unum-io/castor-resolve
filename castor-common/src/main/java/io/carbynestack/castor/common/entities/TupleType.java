@@ -56,11 +56,6 @@ public enum TupleType {
   /** Number of extra bits stored by a {@link Tuple} of the given {@link TupleType} */
   @Getter @JsonIgnore int bitSize;
 
-  // AVH: Gotta make this code nicer at some point, but hacking along...
-  public static final Map<String, Integer> shareMultipliers = loadShareMultipliersByFamily();
-  public static final Map<String, Integer> bitTypePartTypeSize = loadBitPartTypeSizeByFamily();
-  public static final Map<String, Integer> edabitvecMaxSize = loadEdabitVecByFamily();
-
   /**
    * Gets the size in bytes of a share respectively element in a tuple
    *
@@ -70,37 +65,13 @@ public enum TupleType {
     return getField().getElementSize() * 2; // value and mac key
   }
 
-  public static Map<String, Integer> loadShareMultipliersByFamily() {
-    Map<String, Integer> multiplier = new HashMap<>();
-    multiplier.put("Hemi", 1);
-    multiplier.put("CowGear", 2);
-
-    return  multiplier;
-  }
-
-  public static Map<String, Integer> loadBitPartTypeSizeByFamily() {
-    Map<String, Integer> bitTypePartTypeSize = new HashMap<>();
-    bitTypePartTypeSize.put(TupleFamily.HEMI.getFamilyName(), TupleFamily.HEMI.getBitTypePartTypeSize());
-    bitTypePartTypeSize.put(TupleFamily.COWGEAR.getFamilyName(), TupleFamily.COWGEAR.getBitTypePartTypeSize());
-
-    return bitTypePartTypeSize;
-  }
-
-  public static Map<String, Integer> loadEdabitVecByFamily() {
-    Map<String, Integer> edabitvecMaxSize = new HashMap<>();
-    edabitvecMaxSize.put(TupleFamily.HEMI.getFamilyName(), TupleFamily.HEMI.getEdabitvecMaxSize());
-    edabitvecMaxSize.put(TupleFamily.COWGEAR.getFamilyName(), TupleFamily.COWGEAR.getEdabitvecMaxSize());
-
-    return edabitvecMaxSize;
-  }
-
   /**
    * Gets the size in bytes of a share respectively element in a tuple
    *
    * @return the size of a share of this tuple
    */
   public final int getShareSize(String tupleFamily) {
-    return getField().getElementSize() * shareMultipliers.get(tupleFamily); // value and mac key
+    return getField().getElementSize() * TupleFamily.valueOf(tupleFamily).getMultiplier(); // value and mac key
   }
 
   /**
@@ -114,7 +85,7 @@ public enum TupleType {
 
   public final int getTupleSize(String tupleFamily) {
     if( this == EDABIT_GFP_32 || this == EDABIT_GFP_40 || this == EDABIT_GFP_41 || this == EDABIT_GFP_64 ) {
-      return edabitvecMaxSize.get(tupleFamily) * this.getShareSize(tupleFamily) + this.bitSize * bitTypePartTypeSize.get(tupleFamily);
+      return TupleFamily.valueOf(tupleFamily).getEdabitvecMaxSize() * this.getShareSize(tupleFamily) + this.bitSize * TupleFamily.valueOf(tupleFamily).getBitTypePartTypeSize();
     }
     return this.getArity() * this.getShareSize(tupleFamily) + this.bitSize;
   }

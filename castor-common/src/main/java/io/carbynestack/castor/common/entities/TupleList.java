@@ -60,11 +60,11 @@ public class TupleList<T extends Tuple<T, F>, F extends Field> extends ArrayList
       Class<T> tupleCls, String tupleFamily, F field, InputStream inputStream, long length) throws IOException {
     TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
     try {
-      Constructor<T> constructor = tupleCls.getDeclaredConstructor(Field.class, InputStream.class);
+      Constructor<T> constructor = tupleCls.getDeclaredConstructor(Field.class, InputStream.class, String.class);
       List<T> tuples = new ArrayList<>();
 
-      for (int i = 0; i < length / tupleType.getTupleSize(); i++) {
-        tuples.add(constructor.newInstance(field, inputStream));
+      for (int i = 0; i < length / tupleType.getTupleSize(tupleFamily); i++) {
+        tuples.add(constructor.newInstance(field, inputStream, tupleFamily));
       }
       return new TupleList<>(tupleCls, tupleFamily, field, tuples);
     } catch (Exception e) {

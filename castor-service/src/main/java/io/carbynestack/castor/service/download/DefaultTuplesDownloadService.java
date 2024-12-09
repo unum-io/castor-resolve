@@ -96,8 +96,8 @@ public class DefaultTuplesDownloadService implements TuplesDownloadService {
       Class<T> tupleCls, String tupleFamily, F field, ReservationElement reservationElement) {
     UUID tupleChunkId = reservationElement.getTupleChunkId();
     TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
-    final long offset = reservationElement.getStartIndex() * tupleType.getTupleSize();
-    final long length = reservationElement.getReservedTuples() * tupleType.getTupleSize();
+    final long offset = reservationElement.getStartIndex() * tupleType.getTupleSize(tupleFamily);
+    final long length = reservationElement.getReservedTuples() * tupleType.getTupleSize(tupleFamily);
     try {
       return tupleStore.downloadTuples(tupleCls, tupleFamily, field, tupleChunkId, offset, length);
     } catch (Exception e) {

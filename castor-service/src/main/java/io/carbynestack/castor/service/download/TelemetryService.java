@@ -32,13 +32,11 @@ public class TelemetryService {
     List<TupleMetric> metrics = new ArrayList<>();
     for (TupleType type : TupleType.values()) {
       for (TupleFamily family : TupleFamily.values()) {
-        System.out.println("WTDEBUG family: " + family.toString());
         TupleMetric metric = TupleMetric.of(
             tupleChunkFragmentStorageService.getAvailableTuples(type, family.toString()),
             getConsumptionRateForType(interval, type, family.toString()),
             type, family);
         metrics.add(metric);
-        System.out.println("WTDEBUG available: " + metric);
       }
     }
     return new TelemetryData(metrics, interval.toMillis());
