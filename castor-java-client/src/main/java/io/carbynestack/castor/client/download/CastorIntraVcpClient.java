@@ -6,10 +6,7 @@
  */
 package io.carbynestack.castor.client.download;
 
-import io.carbynestack.castor.common.entities.TelemetryData;
-import io.carbynestack.castor.common.entities.Tuple;
-import io.carbynestack.castor.common.entities.TupleList;
-import io.carbynestack.castor.common.entities.TupleType;
+import io.carbynestack.castor.common.entities.*;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import java.util.UUID;
 
@@ -33,7 +30,7 @@ public interface CastorIntraVcpClient {
    * @throws CastorClientException if composing the request tuples URI failed
    * @throws CastorClientException if download the tuples from the service failed
    */
-  TupleList downloadTupleShares(UUID requestId, TupleType tupleType, long count);
+  TupleList downloadTupleShares(UUID requestId, TupleType tupleType, long count, TupleFamily tupleFamily);
 
   /**
    * Retrieves latest telemetry data with an interval preconfigured in castor.

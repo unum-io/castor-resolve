@@ -13,6 +13,7 @@ import static io.carbynestack.castor.common.entities.Field.GFP;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,8 @@ public enum TupleType {
   /** Number of extra bits stored by a {@link Tuple} of the given {@link TupleType} */
   @Getter @JsonIgnore int bitSize;
 
+  public static final Map<String, Integer> shareMultipliers = loadShareMultipliersByFamily();
+
   /**
    * Gets the size in bytes of a share respectively element in a tuple
    *
@@ -56,17 +59,21 @@ public enum TupleType {
     return getField().getElementSize() * 2; // value and mac key
   }
 
+  public static Map<String, Integer> loadShareMultipliersByFamily() {
+    Map<String, Integer> multiplier = new HashMap<>();
+    multiplier.put("Hemi", 1);
+    multiplier.put("CowGear", 2);
+
+    return  multiplier;
+  }
+
   /**
    * Gets the size in bytes of a share respectively element in a tuple
    *
    * @return the size of a share of this tuple
    */
   public final int getShareSize(String tupleFamily) {
-    Map<String, Integer> multiplier = Map.of(
-    "Hemi", 1,
-    "CowGear", 2
-    );
-    return getField().getElementSize() * multiplier.get(tupleFamily); // value and mac key
+    return getField().getElementSize() * shareMultipliers.get(tupleFamily); // value and mac key
   }
 
   /**
@@ -76,6 +83,10 @@ public enum TupleType {
    */
   public final int getTupleSize() {
     return this.getArity() * this.getShareSize() + this.bitSize;
+  }
+
+  public final int getTupleSize(String tupleFamily) {
+    return this.getArity() * this.getShareSize(tupleFamily) + this.bitSize;
   }
 
     /**

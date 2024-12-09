@@ -23,6 +23,7 @@ public enum TupleFamily {
   HEMI("Hemi", 1);
 
   /** Name identifier for the given {@link TupleType} */
+  @Getter
   String familyName;
 
   /** Name identifier for the given {@link TupleType} */
