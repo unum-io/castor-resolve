@@ -19,15 +19,24 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TupleFamily {
-  COWGEAR("CowGear", 2),
-  HEMI("Hemi", 1);
+  COWGEAR("CowGear", 2, 1, 9),
+  HEMI("Hemi", 1, 64, 8);
 
   /** Name identifier for the given {@link TupleType} */
   @Getter
   String familyName;
 
   /** Name identifier for the given {@link TupleType} */
+  @Getter
   Integer multiplier;
+
+  /** edabitvec<T>::MAX_SIZE */
+  @Getter
+  Integer edabitvecMaxSize; 
+
+  /** T::bit_type::part_type::size() */
+  @Getter
+  Integer bitTypePartTypeSize;
 
   @Override
   public String toString() {

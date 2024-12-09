@@ -57,7 +57,7 @@ public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Seria
    */
   private static void verifyTuples(TupleType tupleType, String tupleFamily, byte[] tuples) {
     int arity = tupleType.getArity();
-    if (tuples.length % (tupleType.getTupleBitSize() + arity * tupleType.getShareSize(tupleFamily)) != 0) {
+    if (tuples.length % tupleType.getTupleSize(tupleFamily) != 0) {
       throw new CastorClientException(
           String.format(
               INVALID_DATA_LENGTH_EXCEPTION_MSG, arity * tupleType.getField().getElementSize(), arity, tuples.length, tupleType.getShareSize(tupleFamily), tupleType.getField().getElementSize()));
@@ -70,7 +70,6 @@ public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Seria
    * @return the number of {@link Tuple}s stored in this {@link TupleChunk}.
    */
   public int getNumberOfTuples() {
-    int arity = tupleType.getArity();
-    return this.getTuples().length / (tupleType.getTupleBitSize() + arity * tupleType.getShareSize(tupleFamily));
+    return this.getTuples().length / tupleType.getTupleSize(tupleFamily);
   }
 }

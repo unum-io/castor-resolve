@@ -11,6 +11,8 @@ import static io.carbynestack.castor.common.entities.Field.GF2N;
 import static io.carbynestack.castor.common.entities.Field.GFP;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +26,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TupleType {
+  // AVH: Big hack, do better. findTupleType is static...
+  EDABIT_GFP_32("edabit_gfp_32", EdaBit32.class, GFP, 1, 32),
+  EDABIT_GFP_40("edabit_gfp_40", EdaBit40.class, GFP, 1, 40),
+  EDABIT_GFP_41("edabit_gfp_41", EdaBit41.class, GFP, 1, 41),
+  EDABIT_GFP_64("edabit_gfp_64", EdaBit.class, GFP, 1, 64),
+  BINARY_TRIPLE_GFP("binarytriple_gfp", BinaryTriple.class, GF2N, 3, 0),
   DABIT_GFP("dabit_gfp", DaBit.class, GFP, 1, 9),
   DABIT_GF2N("dabit_gf2n", DaBit.class, GF2N, 1, 9),
   BIT_GFP("bit_gfp", Bit.class, GFP, 1, 0),
@@ -48,7 +56,10 @@ public enum TupleType {
   /** Number of extra bits stored by a {@link Tuple} of the given {@link TupleType} */
   @Getter @JsonIgnore int bitSize;
 
+  // AVH: Gotta make this code nicer at some point, but hacking along...
   public static final Map<String, Integer> shareMultipliers = loadShareMultipliersByFamily();
+  public static final Map<String, Integer> bitTypePartTypeSize = loadBitPartTypeSizeByFamily();
+  public static final Map<String, Integer> edabitvecMaxSize = loadEdabitVecByFamily();
 
   /**
    * Gets the size in bytes of a share respectively element in a tuple
@@ -65,6 +76,22 @@ public enum TupleType {
     multiplier.put("CowGear", 2);
 
     return  multiplier;
+  }
+
+  public static Map<String, Integer> loadBitPartTypeSizeByFamily() {
+    Map<String, Integer> bitTypePartTypeSize = new HashMap<>();
+    bitTypePartTypeSize.put(TupleFamily.HEMI.getFamilyName(), TupleFamily.HEMI.getBitTypePartTypeSize());
+    bitTypePartTypeSize.put(TupleFamily.COWGEAR.getFamilyName(), TupleFamily.COWGEAR.getBitTypePartTypeSize());
+
+    return bitTypePartTypeSize;
+  }
+
+  public static Map<String, Integer> loadEdabitVecByFamily() {
+    Map<String, Integer> edabitvecMaxSize = new HashMap<>();
+    edabitvecMaxSize.put(TupleFamily.HEMI.getFamilyName(), TupleFamily.HEMI.getEdabitvecMaxSize());
+    edabitvecMaxSize.put(TupleFamily.COWGEAR.getFamilyName(), TupleFamily.COWGEAR.getEdabitvecMaxSize());
+
+    return edabitvecMaxSize;
   }
 
   /**
@@ -86,6 +113,9 @@ public enum TupleType {
   }
 
   public final int getTupleSize(String tupleFamily) {
+    if( this == EDABIT_GFP_32 || this == EDABIT_GFP_40 || this == EDABIT_GFP_41 || this == EDABIT_GFP_64 ) {
+      return edabitvecMaxSize.get(tupleFamily) * this.getShareSize(tupleFamily) + this.bitSize * bitTypePartTypeSize.get(tupleFamily);
+    }
     return this.getArity() * this.getShareSize(tupleFamily) + this.bitSize;
   }
 
@@ -118,6 +148,7 @@ public enum TupleType {
       throws CastorClientException {
     return Arrays.stream(TupleType.values())
         .filter(type -> (type.getTupleCls().equals(tupleCls) && type.getField().equals(field)))
+        // AVH: Careful here...
         .findFirst()
         .orElseThrow(
             () ->

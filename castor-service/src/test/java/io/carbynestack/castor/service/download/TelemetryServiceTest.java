@@ -38,6 +38,7 @@ class TelemetryServiceTest {
     Duration interval = Duration.ofSeconds(42);
     List<TupleMetric> expectedMetrics =
         Arrays.asList(
+            TupleMetric.of(1, 2, BINARY_TRIPLE_GFP),
             TupleMetric.of(1, 2, DABIT_GFP),
             TupleMetric.of(1, 2, DABIT_GF2N),
             TupleMetric.of(1, 2, BIT_GFP),

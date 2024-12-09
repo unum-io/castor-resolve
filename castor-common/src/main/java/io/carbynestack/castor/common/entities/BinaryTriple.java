@@ -14,26 +14,26 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A specialized {@link Tuple} of type <i>DaBit</i>.
+ * A specialized {@link Tuple} of type <i>BinaryTriple</i>.
  *
  * @param <F> Defines the {@link Field} the {@link Tuple}'s data is element of
  */
+@JsonTypeName("BinaryTriple")
+public class BinaryTriple<F extends Field>
+    extends ArrayBackedTuple<BinaryTriple<F>, F> {
 
- // AVH: should the ArrayBackedTuple be to DaBit instead?! It has been tested to work with Bit...
-@JsonTypeName("DaBit")
-public class DaBit<F extends Field> extends ArrayBackedTuple<Bit<F>, F> {
   @JsonCreator
-  DaBit(
+  BinaryTriple(
       @JsonProperty(value = "field", required = true) F field,
       @JsonProperty(value = "shares", required = true) Share... shares) {
     super(field, shares);
   }
 
-  public DaBit(F field, Share a) {
-    super(field, a);
+  public BinaryTriple(F field, Share a, Share b, Share c) {
+    super(field, a, b, c);
   }
 
-  DaBit(F field, InputStream inputStream) throws IOException {
+  BinaryTriple(F field, InputStream inputStream) throws IOException {
     super(field, inputStream);
   }
 }

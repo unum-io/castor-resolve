@@ -18,22 +18,20 @@ import java.io.InputStream;
  *
  * @param <F> Defines the {@link Field} the {@link Tuple}'s data is element of
  */
-
- // AVH: should the ArrayBackedTuple be to DaBit instead?! It has been tested to work with Bit...
-@JsonTypeName("DaBit")
-public class DaBit<F extends Field> extends ArrayBackedTuple<Bit<F>, F> {
+@JsonTypeName("EdaBit")
+public class EdaBit<F extends Field> extends ArrayBackedTuple<EdaBit<F>, F> {
   @JsonCreator
-  DaBit(
+  EdaBit(
       @JsonProperty(value = "field", required = true) F field,
       @JsonProperty(value = "shares", required = true) Share... shares) {
     super(field, shares);
   }
 
-  public DaBit(F field, Share a) {
+  public EdaBit(F field, Share a) {
     super(field, a);
   }
 
-  DaBit(F field, InputStream inputStream) throws IOException {
+  EdaBit(F field, InputStream inputStream) throws IOException {
     super(field, inputStream);
   }
 }
