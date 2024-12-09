@@ -17,6 +17,7 @@ import static org.mockito.Mockito.*;
 import io.carbynestack.castor.client.download.CastorInterVcpClient;
 import io.carbynestack.castor.common.entities.Reservation;
 import io.carbynestack.castor.common.entities.ReservationElement;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
 import io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentEntity;
@@ -52,12 +53,15 @@ class CreateReservationSupplierTest {
             tupleChunkFragmentStorageServiceMock,
             reservationId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             count);
   }
 
   @Test
   void givenInsufficientTuples_whenGet_thenThrowCastorServiceException() {
-    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(tupleType)).thenReturn(count - 1);
+    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
+        .thenReturn(count - 1);
 
     CastorServiceException actualCse =
         assertThrows(CastorServiceException.class, () -> createReservationSupplier.get());
@@ -69,8 +73,11 @@ class CreateReservationSupplierTest {
 
   @Test
   void givenProvidedChunksDoNotHaveEnoughTuplesAvailable_whenGet_thenThrowCastorServiceException() {
-    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(tupleType)).thenReturn(count);
-    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(tupleType))
+    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
+        .thenReturn(count);
+    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
         .thenReturn(Optional.empty());
 
     CastorServiceException actualCse =
@@ -87,10 +94,14 @@ class CreateReservationSupplierTest {
     UUID chunkId = UUID.fromString("c8a0a467-16b0-4f03-b7d7-07cbe1b0e7e8");
     long startIndex = 0;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(chunkId, tupleType, startIndex, count);
+        TupleChunkFragmentEntity.of(
+            chunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, count);
 
-    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(tupleType)).thenReturn(count);
-    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(tupleType))
+    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
+        .thenReturn(count);
+    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
         .thenReturn(Optional.of(fragmentEntity));
 
     CastorServiceException actualCse =
@@ -105,14 +116,22 @@ class CreateReservationSupplierTest {
     UUID chunkId = UUID.fromString("c8a0a467-16b0-4f03-b7d7-07cbe1b0e7e8");
     long startIndex = 0;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(chunkId, tupleType, startIndex, count + 1);
+        TupleChunkFragmentEntity.of(
+            chunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, count + 1);
     ReservationElement expectedReservationElement =
         new ReservationElement(chunkId, count, startIndex);
     Reservation expectedReservation =
-        new Reservation(reservationId, tupleType, singletonList(expectedReservationElement));
+        new Reservation(
+            reservationId,
+            tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            singletonList(expectedReservationElement));
 
-    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(tupleType)).thenReturn(count);
-    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(tupleType))
+    when(tupleChunkFragmentStorageServiceMock.getAvailableTuples(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
+        .thenReturn(count);
+    when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentWithTupleType(
+            tupleType, TupleFamily.COWGEAR.getFamilyName()))
         .thenReturn(Optional.of(fragmentEntity));
     when(tupleChunkFragmentStorageServiceMock.splitAt(fragmentEntity, count))
         .thenReturn(fragmentEntity);

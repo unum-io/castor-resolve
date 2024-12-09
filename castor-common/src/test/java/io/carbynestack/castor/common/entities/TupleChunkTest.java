@@ -29,6 +29,7 @@ class TupleChunkTest {
     TupleChunk actualTupleChunk =
         TupleChunk.of(
             expectedTupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
             expectedTupleType.getField(),
             expectedUUID,
             expectedTupleData);
@@ -49,7 +50,7 @@ class TupleChunkTest {
             CastorClientException.class,
             () ->
                 TupleChunk.of(
-                    tupleType.getTupleCls(), tupleType.getField(), chunkId, invalidTupleData));
+                    tupleType.getTupleCls(), TupleFamily.COWGEAR.getFamilyName(), tupleType.getField(), chunkId, invalidTupleData));
     assertEquals(
         String.format(
             INVALID_DATA_LENGTH_EXCEPTION_MSG,

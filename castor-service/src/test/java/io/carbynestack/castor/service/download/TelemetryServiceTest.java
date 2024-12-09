@@ -11,9 +11,11 @@ import static io.carbynestack.castor.common.entities.TupleType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import io.carbynestack.castor.common.entities.TelemetryData;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleMetric;
 import io.carbynestack.castor.service.persistence.cache.ConsumptionCachingService;
 import io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentStorageService;
@@ -38,24 +40,36 @@ class TelemetryServiceTest {
     Duration interval = Duration.ofSeconds(42);
     List<TupleMetric> expectedMetrics =
         Arrays.asList(
-            TupleMetric.of(1, 2, BINARY_TRIPLE_GFP),
-            TupleMetric.of(1, 2, DABIT_GFP),
-            TupleMetric.of(1, 2, DABIT_GF2N),
-            TupleMetric.of(1, 2, BIT_GFP),
-            TupleMetric.of(2, 4, BIT_GF2N),
-            TupleMetric.of(3, 8, INPUT_MASK_GFP),
-            TupleMetric.of(4, 16, INPUT_MASK_GF2N),
-            TupleMetric.of(5, 32, INVERSE_TUPLE_GFP),
-            TupleMetric.of(6, 64, INVERSE_TUPLE_GF2N),
-            TupleMetric.of(7, 128, SQUARE_TUPLE_GFP),
-            TupleMetric.of(8, 256, SQUARE_TUPLE_GF2N),
-            TupleMetric.of(9, 512, MULTIPLICATION_TRIPLE_GFP),
-            TupleMetric.of(10, 1024, MULTIPLICATION_TRIPLE_GF2N));
+            TupleMetric.of(1, 2, DABIT_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(1, 2, DABIT_GFP, TupleFamily.HEMI),
+            TupleMetric.of(1, 2, DABIT_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(1, 2, DABIT_GF2N, TupleFamily.HEMI),
+            TupleMetric.of(1, 2, BIT_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(1, 2, BIT_GFP, TupleFamily.HEMI),
+            TupleMetric.of(2, 4, BIT_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(2, 4, BIT_GF2N, TupleFamily.HEMI),
+            TupleMetric.of(3, 8, INPUT_MASK_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(3, 8, INPUT_MASK_GFP, TupleFamily.HEMI),
+            TupleMetric.of(4, 16, INPUT_MASK_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(4, 16, INPUT_MASK_GF2N, TupleFamily.HEMI),
+            TupleMetric.of(5, 32, INVERSE_TUPLE_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(5, 32, INVERSE_TUPLE_GFP, TupleFamily.HEMI),
+            TupleMetric.of(6, 64, INVERSE_TUPLE_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(6, 64, INVERSE_TUPLE_GF2N, TupleFamily.HEMI),
+            TupleMetric.of(7, 128, SQUARE_TUPLE_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(7, 128, SQUARE_TUPLE_GFP, TupleFamily.HEMI),
+            TupleMetric.of(8, 256, SQUARE_TUPLE_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(8, 256, SQUARE_TUPLE_GF2N, TupleFamily.HEMI),
+            TupleMetric.of(9, 512, MULTIPLICATION_TRIPLE_GFP, TupleFamily.COWGEAR),
+            TupleMetric.of(9, 512, MULTIPLICATION_TRIPLE_GFP, TupleFamily.HEMI),
+            TupleMetric.of(10, 1024, MULTIPLICATION_TRIPLE_GF2N, TupleFamily.COWGEAR),
+            TupleMetric.of(10, 1024, MULTIPLICATION_TRIPLE_GF2N, TupleFamily.HEMI));
     expectedMetrics.forEach(
         m -> {
-          when(fragmentStorageServiceMock.getAvailableTuples(m.getType()))
+          when(fragmentStorageServiceMock.getAvailableTuples(
+                  m.getType(), m.getFamily().getFamilyName()))
               .thenReturn(m.getAvailable());
-          when(consumptionCachingServiceMock.getConsumptionForTupleType(anyLong(), eq(m.getType())))
+          lenient().when(consumptionCachingServiceMock.getConsumptionForTupleType(anyLong(), eq(m.getType())))
               .thenReturn(m.getConsumptionRate() * interval.getSeconds());
         });
     TelemetryData actualTelemetryData = telemetryService.getTelemetryDataForInterval(interval);

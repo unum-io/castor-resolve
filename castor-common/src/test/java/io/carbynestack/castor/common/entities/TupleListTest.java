@@ -51,6 +51,7 @@ class TupleListTest {
     TupleList actualTupleList =
         TupleList.fromStream(
             TupleType.BIT_GFP.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
             TupleType.BIT_GFP.getField(),
             new ByteArrayInputStream(tupleData),
             tupleData.length);
@@ -61,7 +62,7 @@ class TupleListTest {
   @Test
   void givenJsonDoesNotContainRequiredMacValue_whenDeserializeFromJson_thenThrowException() {
     String missingMacData =
-        "{\"tupleCls\":\"InputMask\",\"field\":{\"@type\":\"Gfp\",\"name\":\"gfp\",\"elementSize\":128},\"tuples\":"
+        "{\"tupleCls\":\"InputMask\", \"tupleFamily\":\"CowGear\",\"field\":{\"@type\":\"Gfp\",\"name\":\"gfp\",\"elementSize\":128},\"tuples\":"
             + "[{\"@type\":\"InputMask\",\"field\":{\"@type\":\"Gfp\",\"name\":\"gfp\",\"elementSize\":128},\"shares\":[{\"value\":\"DuLIdi2fllkbdinOZKz0z7ZUbqJ5cWM18lp/csHjggMCXleMA5W5GRnEJ8QFTrDO++nm0XPWWQIiZwtT6/keSqqYwPA1EysyZbv8dPNhLWO6VxItSfzJO0hmaIdRnQkcXHKr0Fey0fS/p+n7KCwSwmo7mqEGjwmvFosaRffS+ro=\",\"mac\":\"z7X3Po2vlaju3y9QUzmfdSXfGkuJFA0ghD9tItY/1IOfgONREWsx5Dmifd9XQSQyKKpmugfTMe5OSYEjW7Nx2Mw7RbuxNiOK7gBqccrZPg5XIZfKhwfuiHH+SvjlgRBOOyTc0050msre3tEgd/hMALZ3DTplbOFMsoly80qvV24=\"}]},"
             + "{\"@type\":\"InputMask\",\"field\":{\"@type\":\"Gfp\",\"name\":\"gfp\",\"elementSize\":128},\"shares\":[{\"value\":\"NGP5T14EepHf+ydA3EW9hfGuxB/PDwA3Fz9IjlPpSlDitgOaagTKr0kRCs6tPyeE1UeXP0t60RhrAD/iO1Ky7daqlx2R3TLhev6st08rVcfVgloyLyX+nb6xnlw0G8FghWBGpAOjW4dSBfKGXtip+oYw8VAoQaWA471gFeLuBCU=\"}]}]"
             + "}";
@@ -85,6 +86,7 @@ class TupleListTest {
       TupleList expectedTupleList =
           TupleList.fromStream(
               type.getTupleCls(),
+              TupleFamily.COWGEAR.getFamilyName(),
               type.getField(),
               new ByteArrayInputStream(tupleData),
               tupleData.length);
@@ -100,7 +102,7 @@ class TupleListTest {
     for (TupleType type : TupleType.values()) {
       TupleList expectedTupleList =
           TupleList.fromStream(
-              type.getTupleCls(), type.getField(), new ByteArrayInputStream(new byte[0]), 0);
+              type.getTupleCls(), TupleFamily.COWGEAR.getFamilyName(), type.getField(), new ByteArrayInputStream(new byte[0]), 0);
       String actualJsonString = objectMapper.writeValueAsString(expectedTupleList);
       TupleList actualTupleList = objectMapper.readValue(actualJsonString, TupleList.class);
       assertEquals(expectedTupleList, actualTupleList);
@@ -116,7 +118,7 @@ class TupleListTest {
 
     Bit<Field.Gfp> expectedTuple1 = new Bit<>(Field.GFP, new Share(tupleValueData, tupleMacData));
     TupleList tupleList =
-        new TupleList(Bit.class, Field.GFP, Collections.singletonList(expectedTuple1));
+        new TupleList(Bit.class, TupleFamily.COWGEAR.getFamilyName(),  Field.GFP, Collections.singletonList(expectedTuple1));
     TupleChunk actualTupleChunk = tupleList.asChunk(expectedUUID);
     assertEquals(expectedUUID, actualTupleChunk.getChunkId());
     assertArrayEquals(
@@ -136,7 +138,7 @@ class TupleListTest {
         mockConstruction(
             ByteArrayOutputStream.class,
             (mock, settings) -> doThrow(expectedException).when(mock).write(any(byte[].class)))) {
-      TupleList tupleList = new TupleList(Bit.class, Field.GFP, Collections.singletonList(tuple));
+      TupleList tupleList = new TupleList(Bit.class, TupleFamily.COWGEAR.getFamilyName(), Field.GFP, Collections.singletonList(tuple));
       IOException actualException =
           assertThrows(IOException.class, () -> tupleList.asChunk(chunkId));
       assertEquals(expectedException, actualException);

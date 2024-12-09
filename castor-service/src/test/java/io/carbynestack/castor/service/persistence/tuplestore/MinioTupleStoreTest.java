@@ -116,7 +116,12 @@ class MinioTupleStoreTest {
             IllegalArgumentException.class,
             () ->
                 minioTupleStore.downloadTuples(
-                    tupleType.getTupleCls(), tupleType.getField(), chunkId, invalidIndex, length));
+                    tupleType.getTupleCls(),
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    tupleType.getField(),
+                    chunkId,
+                    invalidIndex,
+                    length));
 
     assertEquals(INVALID_INDEX_EXCEPTION_MSG, actualIae.getMessage());
   }
@@ -134,6 +139,7 @@ class MinioTupleStoreTest {
             () ->
                 minioTupleStore.downloadTuples(
                     tupleType.getTupleCls(),
+                    TupleFamily.COWGEAR.getFamilyName(),
                     tupleType.getField(),
                     chunkId,
                     startIndex,
@@ -166,7 +172,12 @@ class MinioTupleStoreTest {
             CastorServiceException.class,
             () ->
                 minioTupleStore.downloadTuples(
-                    tupleType.getTupleCls(), tupleType.getField(), chunkId, startIndex, length));
+                    tupleType.getTupleCls(),
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    tupleType.getField(),
+                    chunkId,
+                    startIndex,
+                    length));
 
     assertEquals(ERROR_WHILE_READING_TUPLES_EXCEPTION_MSG, actualCse.getMessage());
     assertEquals(expectedException, actualCse.getCause());
@@ -199,7 +210,12 @@ class MinioTupleStoreTest {
     TupleList<InputMask<Field.Gfp>, Field.Gfp> actualTupleList =
         (TupleList<InputMask<Field.Gfp>, Field.Gfp>)
             minioTupleStore.downloadTuples(
-                tupleType.getTupleCls(), tupleType.getField(), chunkId, startIndex, length);
+                tupleType.getTupleCls(),
+                TupleFamily.COWGEAR.getFamilyName(),
+                tupleType.getField(),
+                chunkId,
+                startIndex,
+                length);
 
     assertEquals(tupleType.getTupleCls(), actualTupleList.getTupleCls());
     assertEquals(tupleType.getField(), actualTupleList.getField());

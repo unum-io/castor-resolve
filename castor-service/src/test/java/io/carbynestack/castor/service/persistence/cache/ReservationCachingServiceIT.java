@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import io.carbynestack.castor.client.download.CastorInterVcpClient;
 import io.carbynestack.castor.common.entities.Reservation;
 import io.carbynestack.castor.common.entities.ReservationElement;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
 import io.carbynestack.castor.service.CastorServiceApplication;
@@ -103,6 +104,7 @@ public class ReservationCachingServiceIT {
       new Reservation(
           testReservationId,
           testTupleType,
+          TupleFamily.COWGEAR.getFamilyName(),
           singletonList(new ReservationElement(testChunkId, testNumberReservedTuples, 0)));
 
   @BeforeEach
@@ -129,7 +131,10 @@ public class ReservationCachingServiceIT {
   void givenCacheIsEmpty_whenGetReservation_thenReturnNull() {
     assertNull(
         reservationCachingService.getUnlockedReservation(
-            testReservation.getReservationId(), testTupleType, testNumberReservedTuples));
+            testReservation.getReservationId(),
+            testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            testNumberReservedTuples));
   }
 
   @Test
@@ -138,11 +143,17 @@ public class ReservationCachingServiceIT {
     assertEquals(
         testReservation,
         reservationCachingService.getUnlockedReservation(
-            testReservation.getReservationId(), testTupleType, testNumberReservedTuples));
+            testReservation.getReservationId(),
+            testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            testNumberReservedTuples));
     assertEquals(
         testReservation,
         reservationCachingService.getUnlockedReservation(
-            testReservation.getReservationId(), testTupleType, testNumberReservedTuples));
+            testReservation.getReservationId(),
+            testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            testNumberReservedTuples));
   }
 
   @Test
@@ -156,13 +167,22 @@ public class ReservationCachingServiceIT {
     long fragmentLength = 2 * requestedNoTuples;
     TupleChunkFragmentEntity existingFragment =
         TupleChunkFragmentEntity.of(
-            chunkId, requestedTupleType, fragmentStartIndex, fragmentLength, UNLOCKED, null);
+            chunkId,
+            requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            fragmentStartIndex,
+            fragmentLength,
+            UNLOCKED,
+            null);
     String expectedReservationId = requestId + "_" + requestedTupleType;
     ReservationElement expectedReservationElement =
         new ReservationElement(chunkId, requestedNoTuples, fragmentStartIndex);
     Reservation expectedReservation =
         new Reservation(
-            expectedReservationId, requestedTupleType, singletonList(expectedReservationElement));
+            expectedReservationId,
+            requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            singletonList(expectedReservationElement));
     CastorServiceException expectedException =
         new CastorServiceException("sharing Reservation failed");
 
@@ -175,7 +195,10 @@ public class ReservationCachingServiceIT {
             CastorServiceException.class,
             () ->
                 reservationCachingService.createReservation(
-                    resultingReservationId, testTupleType, requestedNoTuples));
+                    resultingReservationId,
+                    testTupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    requestedNoTuples));
 
     assertEquals(expectedException, actualCSE);
 
@@ -201,15 +224,24 @@ public class ReservationCachingServiceIT {
         new ReservationElement(tupleChunkId, requestedLength, requestedStartIndex);
     String reservationId = "testReservation";
     TupleType tupleType = MULTIPLICATION_TRIPLE_GFP;
-    Reservation r = new Reservation(reservationId, tupleType, singletonList(re));
+    Reservation r =
+        new Reservation(
+            reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(re));
 
     TupleChunkFragmentEntity fragmentBefore =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, 0, requestedStartIndex, UNLOCKED, null);
+            tupleChunkId,
+            tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            0,
+            requestedStartIndex,
+            UNLOCKED,
+            null);
     TupleChunkFragmentEntity fragmentPart1 =
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             requestedStartIndex,
             requestedStartIndex + requestedLength - 5,
             UNLOCKED,
@@ -218,6 +250,7 @@ public class ReservationCachingServiceIT {
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             requestedStartIndex + requestedLength - 5,
             Long.MAX_VALUE,
             UNLOCKED,

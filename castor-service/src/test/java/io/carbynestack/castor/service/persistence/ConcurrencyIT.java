@@ -10,10 +10,7 @@ package io.carbynestack.castor.service.persistence;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import io.carbynestack.castor.common.entities.ActivationStatus;
-import io.carbynestack.castor.common.entities.Reservation;
-import io.carbynestack.castor.common.entities.ReservationElement;
-import io.carbynestack.castor.common.entities.TupleType;
+import io.carbynestack.castor.common.entities.*;
 import io.carbynestack.castor.service.CastorServiceApplication;
 import io.carbynestack.castor.service.persistence.cache.ReservationCachingService;
 import io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentEntity;
@@ -64,7 +61,13 @@ public class ConcurrencyIT {
     long tuplesInChunk = 100;
     fragmentStorageService.keep(
         TupleChunkFragmentEntity.of(
-            testChunkId, testTupleType, 0, tuplesInChunk, ActivationStatus.UNLOCKED, null));
+            testChunkId,
+            testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            0,
+            tuplesInChunk,
+            ActivationStatus.UNLOCKED,
+            null));
     fragmentStorageService.activateFragmentsForTupleChunk(testChunkId);
   }
 
@@ -76,11 +79,13 @@ public class ConcurrencyIT {
         new Reservation(
             "1636913e-87b7-4331-97d7-4b14a1552604",
             testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             Collections.singletonList(new ReservationElement(testChunkId, tuplesToReserve, 0)));
     Reservation secondReservation =
         new Reservation(
             "9b77009e-313e-4aa9-b0d0-da0235329139",
             testTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             Collections.singletonList(
                 new ReservationElement(testChunkId, tuplesToReserve, tuplesToReserve)));
     reservationCachingService.keepReservation(secondReservation);
