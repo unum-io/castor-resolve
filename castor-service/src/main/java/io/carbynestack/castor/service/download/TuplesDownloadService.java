@@ -79,5 +79,5 @@ public interface TuplesDownloadService {
    */
   @Transactional
   <T extends Tuple<T, F>, F extends Field> TupleList<T, F> getTupleList(
-      Class<T> tupleCls, F field, long count, UUID requestId);
+      Class<T> tupleCls, String tupleFamily, F field, long count, UUID requestId);
 }

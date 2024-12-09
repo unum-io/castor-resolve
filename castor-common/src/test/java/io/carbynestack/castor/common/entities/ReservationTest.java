@@ -41,7 +41,7 @@ class ReservationTest {
     NullPointerException actualNpe =
         assertThrows(
             NullPointerException.class,
-            () -> new Reservation(null, testTupleType, testReservationElements));
+            () -> new Reservation(null, testTupleType, TupleFamily.COWGEAR.getFamilyName(), testReservationElements));
     assertEquals("reservationId is marked non-null but is null", actualNpe.getMessage());
   }
 
@@ -50,7 +50,7 @@ class ReservationTest {
     IllegalArgumentException iae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new Reservation("", testTupleType, testReservationElements));
+            () -> new Reservation("", testTupleType, TupleFamily.COWGEAR.getFamilyName(), testReservationElements));
     assertEquals(ID_MUST_NOT_BE_NULL_OR_EMPTY_EXCEPTION_MSG, iae.getMessage());
   }
 
@@ -60,7 +60,7 @@ class ReservationTest {
     IllegalArgumentException iae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new Reservation(testReservationId, testTupleType, emptyReservations));
+            () -> new Reservation(testReservationId, testTupleType, TupleFamily.COWGEAR.getFamilyName(), emptyReservations));
     assertEquals(ONE_RESERVATION_ELEMENT_REQUIRED_EXCEPTION_MSG, iae.getMessage());
   }
 
@@ -72,6 +72,7 @@ class ReservationTest {
         new ReservationJsonStringBuilder()
             .withReservationId(testReservationId)
             .withTupleType(testTupleType)
+            .withTupleFamily(TupleFamily.COWGEAR)
             .withStatus(expectedStatus)
             .withReservations(testReservationElements)
             .build();
@@ -87,6 +88,7 @@ class ReservationTest {
     String incompleteData =
         new ReservationJsonStringBuilder()
             .withTupleType(TupleType.MULTIPLICATION_TRIPLE_GFP)
+            .withTupleFamily(TupleFamily.COWGEAR)
             .withStatus(ActivationStatus.LOCKED)
             .withReservations(new ArrayList<>())
             .build();
@@ -105,6 +107,7 @@ class ReservationTest {
         new ReservationJsonStringBuilder()
             .withReservationId(UUID.randomUUID().toString())
             .withTupleType(TupleType.MULTIPLICATION_TRIPLE_GFP)
+            .withTupleFamily(TupleFamily.COWGEAR)
             .withStatus(ActivationStatus.LOCKED)
             .build();
 
@@ -121,6 +124,7 @@ class ReservationTest {
     String incompleteData =
         new ReservationJsonStringBuilder()
             .withReservationId(UUID.randomUUID().toString())
+            .withTupleFamily(TupleFamily.COWGEAR)
             .withStatus(ActivationStatus.LOCKED)
             .withReservations(new ArrayList<>())
             .build();
@@ -139,6 +143,7 @@ class ReservationTest {
         new ReservationJsonStringBuilder()
             .withReservationId(UUID.randomUUID().toString())
             .withTupleType(TupleType.MULTIPLICATION_TRIPLE_GFP)
+            .withTupleFamily(TupleFamily.COWGEAR)
             .withReservations(new ArrayList<>())
             .build();
 
@@ -152,6 +157,7 @@ class ReservationTest {
   private static class ReservationJsonStringBuilder {
     private String reservationId;
     private String tupleType;
+    private String tupleFamily;
     private String reservations;
     private String status;
 
@@ -164,6 +170,11 @@ class ReservationTest {
 
     public ReservationJsonStringBuilder withTupleType(TupleType tupleType) {
       this.tupleType = String.format("\"tupleType\":\"%s\"", tupleType.name());
+      return this;
+    }
+
+    public ReservationJsonStringBuilder withTupleFamily(TupleFamily tupleFamily) {
+      this.tupleFamily = String.format("\"tupleFamily\":\"%s\"", tupleFamily.getFamilyName());
       return this;
     }
 
@@ -183,7 +194,7 @@ class ReservationTest {
       return String.format(
           "{%s}",
           StringUtils.join(
-              Stream.of(reservationId, tupleType, status, reservations)
+              Stream.of(reservationId, tupleType, tupleFamily, status, reservations)
                   .filter(Objects::nonNull)
                   .toArray(),
               ','));

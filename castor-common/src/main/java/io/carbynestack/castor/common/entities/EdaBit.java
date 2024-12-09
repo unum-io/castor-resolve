@@ -14,27 +14,25 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A specialized {@link Tuple} of type <i>MultiplicationTriple</i>.
+ * A specialized {@link Tuple} of type <i>DaBit</i>.
  *
  * @param <F> Defines the {@link Field} the {@link Tuple}'s data is element of
  */
-@JsonTypeName("MultiplicationTriple")
-public class MultiplicationTriple<F extends Field>
-    extends ArrayBackedTuple<MultiplicationTriple<F>, F> {
-
+@JsonTypeName("EdaBit")
+public class EdaBit<F extends Field> extends ArrayBackedTuple<EdaBit<F>, F> {
   @JsonCreator
-  MultiplicationTriple(
+  EdaBit(
       @JsonProperty(value = "field", required = true) F field,
       @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
     super(field, tupleFamily, shares);
   }
 
-  public MultiplicationTriple(F field, String tupleFamily, Share a, Share b, Share c) {
-    super(field, tupleFamily, a, b, c);
+  public EdaBit(F field, String tupleFamily, Share a) {
+    super(field, tupleFamily, a);
   }
 
-  MultiplicationTriple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+  EdaBit(F field, InputStream inputStream, String tupleFamily) throws IOException {
     super(field, inputStream, tupleFamily);
   }
 }

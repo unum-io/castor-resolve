@@ -8,6 +8,7 @@
 package io.carbynestack.castor.common;
 
 import io.carbynestack.castor.common.entities.TupleChunk;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
@@ -151,7 +152,7 @@ public class CastorServiceUri {
    * @return the composed {@link URI}
    * @throws CastorClientException if composing the URI failed
    */
-  public URI getIntraVcpRequestTuplesUri(UUID requestId, TupleType tupleType, long count) {
+  public URI getIntraVcpRequestTuplesUri(UUID requestId, TupleType tupleType, long count, TupleFamily tupleFamily) {
     List<NameValuePair> requestParams =
         Arrays.asList(
             new BasicNameValuePair(
@@ -159,7 +160,10 @@ public class CastorServiceUri {
             new BasicNameValuePair(
                 CastorRestApiEndpoints.DOWNLOAD_REQUEST_ID_PARAMETER, requestId.toString()),
             new BasicNameValuePair(
-                CastorRestApiEndpoints.DOWNLOAD_TUPLE_TYPE_PARAMETER, tupleType.name()));
+                CastorRestApiEndpoints.DOWNLOAD_TUPLE_TYPE_PARAMETER, tupleType.name()),
+            new BasicNameValuePair(
+                CastorRestApiEndpoints.DOWNLOAD_TUPLE_FAMILY_PARAMETER, tupleFamily.getFamilyName())
+            );
     try {
       return new URIBuilder(intraVcpTuplesUri).addParameters(requestParams).build();
     } catch (URISyntaxException e) {

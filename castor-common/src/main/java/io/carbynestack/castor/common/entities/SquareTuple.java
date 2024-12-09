@@ -24,15 +24,16 @@ public class SquareTuple<F extends Field> extends ArrayBackedTuple<SquareTuple<F
   @JsonCreator
   SquareTuple(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public SquareTuple(F field, Share a, Share b) {
-    super(field, a, b);
+  public SquareTuple(F field, String tupleFamily, Share a, Share b) {
+    super(field, tupleFamily, a, b);
   }
 
-  SquareTuple(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  SquareTuple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

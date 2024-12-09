@@ -18,6 +18,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_OCTET_STREAM_VA
 
 import io.carbynestack.castor.common.CastorServiceUri;
 import io.carbynestack.castor.common.entities.TupleChunk;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.ConnectionFailedException;
 import io.carbynestack.castor.common.exceptions.UnsupportedPayloadException;
@@ -141,7 +142,12 @@ class WebSocketClientTest {
         RandomUtils.nextBytes(
             GFP.getElementSize() * TupleType.BIT_GFP.getArity() * GFP.getElementSize());
     TupleChunk tupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, tupleData);
+        TupleChunk.of(
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            tupleData);
     byte[] expectedSerializedPayload = SerializationUtils.serialize(tupleChunk);
     StompSession stompSessionMock = mock(StompSession.class);
 

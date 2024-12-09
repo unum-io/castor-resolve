@@ -24,10 +24,11 @@ import lombok.Value;
 public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Serializable {
   private static final long serialVersionUID = -5025431542939631318L;
   public static final String INVALID_DATA_LENGTH_EXCEPTION_MSG =
-      "Length of TupleChunk data must be a multiple of %s bytes!";
+      "Length of TupleChunk data must be a multiple of %s bytes! Arity %s Length %s ShareSize %s ElementSize %s";
 
   UUID chunkId;
   TupleType tupleType;
+  String tupleFamily;
   byte[] tuples;
 
   /**
@@ -42,10 +43,10 @@ public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Seria
    * @throws CastorClientException if the given tuple data is invalid
    */
   public static <T extends Tuple<T, F>, F extends Field> TupleChunk<T, F> of(
-      Class<T> tupleCls, F field, @NonNull UUID chunkId, byte[] tuples) {
-    TupleType tupleType = TupleType.findTupleType(tupleCls, field);
-    verifyTuples(tupleType, tuples);
-    return new TupleChunk<>(chunkId, tupleType, tuples);
+      Class<T> tupleCls, String tupleFamily, F field, @NonNull UUID chunkId, byte[] tuples) {
+    TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
+    verifyTuples(tupleType, tupleFamily, tuples);
+    return new TupleChunk<>(chunkId, tupleType, tupleFamily, tuples);
   }
 
   /**
@@ -54,12 +55,12 @@ public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Seria
    * @param tuples the tuples as byte array
    * @throws CastorClientException if the given tuple data is not valid
    */
-  private static void verifyTuples(TupleType tupleType, byte[] tuples) {
+  private static void verifyTuples(TupleType tupleType, String tupleFamily, byte[] tuples) {
     int arity = tupleType.getArity();
-    if (tuples.length % (arity * tupleType.getShareSize()) != 0) {
+    if (tuples.length % tupleType.getTupleSize(tupleFamily) != 0) {
       throw new CastorClientException(
           String.format(
-              INVALID_DATA_LENGTH_EXCEPTION_MSG, arity * tupleType.getField().getElementSize()));
+              INVALID_DATA_LENGTH_EXCEPTION_MSG, arity * tupleType.getField().getElementSize(), arity, tuples.length, tupleType.getShareSize(tupleFamily), tupleType.getField().getElementSize()));
     }
   }
 
@@ -69,7 +70,6 @@ public class TupleChunk<T extends Tuple<T, F>, F extends Field> implements Seria
    * @return the number of {@link Tuple}s stored in this {@link TupleChunk}.
    */
   public int getNumberOfTuples() {
-    int arity = tupleType.getArity();
-    return this.getTuples().length / (arity * tupleType.getShareSize());
+    return this.getTuples().length / tupleType.getTupleSize(tupleFamily);
   }
 }

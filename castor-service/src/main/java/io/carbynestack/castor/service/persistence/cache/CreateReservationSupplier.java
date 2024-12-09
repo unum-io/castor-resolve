@@ -37,6 +37,7 @@ public final class CreateReservationSupplier implements Supplier<Reservation> {
   final TupleChunkFragmentStorageService fragmentStorageService;
   final String reservationId;
   final TupleType tupleType;
+  final String tupleFamily;
   final long count;
 
   /**
@@ -48,9 +49,9 @@ public final class CreateReservationSupplier implements Supplier<Reservation> {
    */
   @Override
   public Reservation get() {
-    List<ReservationElement> reservationElements = composeElements(tupleType, count, reservationId);
+    List<ReservationElement> reservationElements = composeElements(tupleType, tupleFamily, count, reservationId);
     log.debug("Reservation composed.");
-    Reservation reservation = new Reservation(reservationId, tupleType, reservationElements);
+    Reservation reservation = new Reservation(reservationId, tupleType, tupleFamily, reservationElements);
     if (!castorInterVcpClient.shareReservation(reservation)) {
       throw new CastorServiceException(SHARING_RESERVATION_FAILED_EXCEPTION_MSG);
     }
@@ -64,8 +65,8 @@ public final class CreateReservationSupplier implements Supplier<Reservation> {
    *     there are enough tuples available
    */
   private List<ReservationElement> composeElements(
-      TupleType tupleType, long numberOfTuples, String reservationId) {
-    long availableTuples = fragmentStorageService.getAvailableTuples(tupleType);
+      TupleType tupleType, String tupleFamily, long numberOfTuples, String reservationId) {
+    long availableTuples = fragmentStorageService.getAvailableTuples(tupleType, tupleFamily);
     if (availableTuples < numberOfTuples) {
       throw new CastorServiceException(
           String.format(
@@ -77,7 +78,7 @@ public final class CreateReservationSupplier implements Supplier<Reservation> {
       try {
         TupleChunkFragmentEntity availableFragment =
             fragmentStorageService
-                .findAvailableFragmentWithTupleType(tupleType)
+                .findAvailableFragmentWithTupleType(tupleType, tupleFamily)
                 .orElseThrow(
                     () ->
                         new CastorServiceException(FAILED_FETCH_AVAILABLE_FRAGMENT_EXCEPTION_MSG));

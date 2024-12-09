@@ -69,10 +69,11 @@ class DefaultTuplesDownloadServiceTest {
 
     when(reservationMock.getReservations()).thenReturn(singletonList(reservationElementMock));
     when(reservationCachingServiceMock.getReservationWithRetry(
-            resultingReservationId, tupleType, count))
+            resultingReservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), count))
         .thenReturn(reservationMock);
     when(tupleStoreMock.downloadTuples(
             tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
             tupleType.getField(),
             chunkId,
             0,
@@ -84,7 +85,11 @@ class DefaultTuplesDownloadServiceTest {
             CastorServiceException.class,
             () ->
                 tuplesDownloadService.getTupleList(
-                    tupleType.getTupleCls(), tupleType.getField(), count, requestId));
+                    tupleType.getTupleCls(),
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    tupleType.getField(),
+                    count,
+                    requestId));
 
     assertEquals(FAILED_RETRIEVING_TUPLES_EXCEPTION_MSG, actualCse.getMessage());
     assertEquals(expectedCause, actualCse.getCause());
@@ -103,28 +108,42 @@ class DefaultTuplesDownloadServiceTest {
         new ReservationElement(chunkId, count, reStartIndex);
     Reservation availableReservation =
         new Reservation(
-                resultingReservationId, tupleType, singletonList(availableReservationElement))
+                resultingReservationId,
+                tupleType,
+                TupleFamily.COWGEAR.getFamilyName(),
+                singletonList(availableReservationElement))
             .setStatus(ActivationStatus.UNLOCKED);
     long expectedTupleDownloadLength = tupleType.getTupleSize() * count;
     byte[] tupleData = RandomUtils.nextBytes((int) expectedTupleDownloadLength);
     TupleList expectedTupleList =
         TupleList.fromStream(
             tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
             tupleType.getField(),
             new ByteArrayInputStream(tupleData),
             tupleData.length);
 
     when(castorServicePropertiesMock.isMaster()).thenReturn(true);
-    when(reservationCachingServiceMock.createReservation(resultingReservationId, tupleType, count))
+    when(reservationCachingServiceMock.createReservation(
+            resultingReservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), count))
         .thenReturn(availableReservation);
     when(tupleStoreMock.downloadTuples(
-            tupleType.getTupleCls(), tupleType.getField(), chunkId, 0, expectedTupleDownloadLength))
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            0,
+            expectedTupleDownloadLength))
         .thenReturn(expectedTupleList);
 
     assertEquals(
         expectedTupleList,
         tuplesDownloadService.getTupleList(
-            tupleType.getTupleCls(), tupleType.getField(), count, requestId));
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            count,
+            requestId));
 
     verify(tupleStoreMock).deleteTupleChunk(chunkId);
     verify(reservationCachingServiceMock).forgetReservation(resultingReservationId);

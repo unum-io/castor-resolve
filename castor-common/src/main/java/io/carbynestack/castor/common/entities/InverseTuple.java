@@ -24,15 +24,16 @@ public class InverseTuple<F extends Field> extends ArrayBackedTuple<InverseTuple
   @JsonCreator
   InverseTuple(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public InverseTuple(F field, Share a, Share b) {
-    super(field, a, b);
+  public InverseTuple(F field, String tupleFamily, Share a, Share b) {
+    super(field, tupleFamily, a, b);
   }
 
-  InverseTuple(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  InverseTuple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

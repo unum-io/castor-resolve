@@ -23,15 +23,16 @@ public class Bit<F extends Field> extends ArrayBackedTuple<Bit<F>, F> {
   @JsonCreator
   Bit(
       @JsonProperty(value = "field", required = true) F field,
+      @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
-    super(field, shares);
+    super(field, tupleFamily, shares);
   }
 
-  public Bit(F field, Share a) {
-    super(field, a);
+  public Bit(F field, String tupleFamily, Share a) {
+    super(field, tupleFamily, a);
   }
 
-  Bit(F field, InputStream inputStream) throws IOException {
-    super(field, inputStream);
+  Bit(F field, InputStream inputStream, String tupleFamily) throws IOException {
+    super(field, inputStream, tupleFamily);
   }
 }

@@ -124,6 +124,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         TupleChunkFragmentEntity.of(
             chunkId,
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             fragmentStartIndex,
             fragmentLength,
             ActivationStatus.UNLOCKED,
@@ -133,7 +134,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         new ReservationElement(chunkId, requestedNoTuples, fragmentStartIndex);
     Reservation expectedReservation =
         new Reservation(
-            expectedReservationId, requestedTupleType, singletonList(expectedReservationElement));
+            expectedReservationId, requestedTupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(expectedReservationElement));
 
     tupleChunkFragmentRepository.save(existingFragment);
     doReturn(false).when(interVcpClientMock).shareReservation(expectedReservation);
@@ -144,6 +145,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
             () ->
                 tuplesDownloadService.getTupleList(
                     requestedTupleType.getTupleCls(),
+                    TupleFamily.COWGEAR.getFamilyName(),
                     requestedTupleType.getField(),
                     requestedNoTuples,
                     requestId));
@@ -168,6 +170,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         TupleChunkFragmentEntity.of(
             chunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             fragmentStartIndex,
             fragmentEndIndex,
             ActivationStatus.UNLOCKED,
@@ -177,11 +180,12 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         new ReservationElement(chunkId, count, fragmentStartIndex);
     Reservation expectedReservation =
         new Reservation(
-            expectedReservationId, tupleType, singletonList(expectedReservationElement));
+            expectedReservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(expectedReservationElement));
     TupleChunkFragmentEntity expectedReservedFragment =
         TupleChunkFragmentEntity.of(
             chunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             fragmentStartIndex,
             fragmentStartIndex + count,
             ActivationStatus.UNLOCKED,
@@ -190,6 +194,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         TupleChunkFragmentEntity.of(
             chunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             fragmentStartIndex + count,
             fragmentEndIndex,
             ActivationStatus.UNLOCKED,
@@ -205,7 +210,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
             RuntimeException.class,
             () ->
                 tuplesDownloadService.getTupleList(
-                    tupleType.getTupleCls(), tupleType.getField(), count, requestId));
+                    tupleType.getTupleCls(), TupleFamily.COWGEAR.getFamilyName(), tupleType.getField(), count, requestId));
 
     assertEquals(FAILED_RETRIEVING_TUPLES_EXCEPTION_MSG, actualException.getMessage());
     assertEquals(ERROR_WHILE_READING_TUPLES_EXCEPTION_MSG, actualException.getCause().getMessage());
@@ -235,6 +240,7 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         TupleChunkFragmentEntity.of(
             chunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             fragmentStartIndex,
             fragmentEndIndex,
             ActivationStatus.UNLOCKED,
@@ -244,10 +250,10 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
         new ReservationElement(chunkId, count, fragmentStartIndex);
     Reservation expectedReservation =
         new Reservation(
-            expectedReservationId, tupleType, singletonList(expectedReservationElement));
+            expectedReservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(expectedReservationElement));
     byte[] tupleData = RandomUtils.nextBytes((int) (tupleType.getTupleSize() * fragmentEndIndex));
     TupleChunk existingTupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, tupleData);
+        TupleChunk.of(tupleType.getTupleCls(), TupleFamily.COWGEAR.getFamilyName(), tupleType.getField(), chunkId, tupleData);
     try (InputStream inputStream = new ByteArrayInputStream(tupleData)) {
       int size = existingTupleChunk.getNumberOfTuples() * tupleType.getTupleSize();
       minioClient.putObject(
@@ -264,11 +270,12 @@ public class DefaultTuplesDownloadServiceAsMasterIT {
 
     TupleList tupleList =
         tuplesDownloadService.getTupleList(
-            tupleType.getTupleCls(), tupleType.getField(), count, requestId);
+            tupleType.getTupleCls(), TupleFamily.COWGEAR.getFamilyName(), tupleType.getField(), count, requestId);
 
     assertEquals(
         TupleList.fromStream(
             tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
             tupleType.getField(),
             new ByteArrayInputStream(
                 tupleData,

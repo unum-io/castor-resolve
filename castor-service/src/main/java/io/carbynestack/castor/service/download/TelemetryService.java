@@ -10,6 +10,7 @@ package io.carbynestack.castor.service.download;
 import io.carbynestack.castor.common.entities.TelemetryData;
 import io.carbynestack.castor.common.entities.TupleMetric;
 import io.carbynestack.castor.common.entities.TupleType;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.service.persistence.cache.ConsumptionCachingService;
 import io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentStorageService;
 import java.time.Duration;
@@ -30,17 +31,18 @@ public class TelemetryService {
   public TelemetryData getTelemetryDataForInterval(Duration interval) {
     List<TupleMetric> metrics = new ArrayList<>();
     for (TupleType type : TupleType.values()) {
-      TupleMetric metric =
-          TupleMetric.of(
-              tupleChunkFragmentStorageService.getAvailableTuples(type),
-              getConsumptionRateForType(interval, type),
-              type);
-      metrics.add(metric);
+      for (TupleFamily family : TupleFamily.values()) {
+        TupleMetric metric = TupleMetric.of(
+            tupleChunkFragmentStorageService.getAvailableTuples(type, family.toString()),
+            getConsumptionRateForType(interval, type, family.toString()),
+            type, family);
+        metrics.add(metric);
+      }
     }
     return new TelemetryData(metrics, interval.toMillis());
   }
 
-  private int getConsumptionRateForType(Duration interval, TupleType type) {
+  private int getConsumptionRateForType(Duration interval, TupleType type, String tupleFamily) {
     long timeSince = new Date().getTime() - interval.toMillis();
     long consumptionSince = consumptionCachingService.getConsumptionForTupleType(timeSince, type);
     return Math.round(consumptionSince / (float) interval.getSeconds());

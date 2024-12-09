@@ -24,6 +24,7 @@ public class WaitForReservationCallable implements Callable<Reservation>, Cancel
   private boolean stop = false;
   private final String reservationId;
   private final TupleType tupleType;
+  private final String tupleFamily;
   private final long numberOfTuples;
   private final ReservationCachingService reservationCachingService;
   private final long retryDelay;
@@ -40,7 +41,7 @@ public class WaitForReservationCallable implements Callable<Reservation>, Cancel
       try {
         Reservation reservation =
             reservationCachingService.getUnlockedReservation(
-                this.reservationId, tupleType, numberOfTuples);
+                this.reservationId, tupleType, tupleFamily, numberOfTuples);
         if (reservation != null) {
           return reservation;
         }

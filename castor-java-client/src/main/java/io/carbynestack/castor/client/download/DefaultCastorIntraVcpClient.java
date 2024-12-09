@@ -10,10 +10,7 @@ import static java.util.Collections.singletonList;
 
 import io.carbynestack.castor.common.BearerTokenProvider;
 import io.carbynestack.castor.common.CastorServiceUri;
-import io.carbynestack.castor.common.entities.InputMask;
-import io.carbynestack.castor.common.entities.TelemetryData;
-import io.carbynestack.castor.common.entities.TupleList;
-import io.carbynestack.castor.common.entities.TupleType;
+import io.carbynestack.castor.common.entities.*;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.httpclient.BearerTokenUtils;
 import io.carbynestack.httpclient.CsHttpClient;
@@ -89,11 +86,11 @@ public class DefaultCastorIntraVcpClient implements CastorIntraVcpClient {
   }
 
   @Override
-  public TupleList downloadTupleShares(UUID requestId, TupleType tupleType, long count) {
+  public TupleList downloadTupleShares(UUID requestId, TupleType tupleType, long count, TupleFamily tupleFamily) {
     try {
       return csHttpClient
           .getForEntity(
-              serviceUri.getIntraVcpRequestTuplesUri(requestId, tupleType, count),
+              serviceUri.getIntraVcpRequestTuplesUri(requestId, tupleType, count, tupleFamily),
               getHeaders(serviceUri),
               TupleList.class)
           .get();

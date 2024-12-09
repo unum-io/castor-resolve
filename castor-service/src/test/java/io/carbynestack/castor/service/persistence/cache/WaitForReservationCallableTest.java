@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 import io.carbynestack.castor.common.entities.Reservation;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +38,12 @@ class WaitForReservationCallableTest {
     int retries = 1;
     WaitForReservationCallable wfrc =
         new WaitForReservationCallable(
-            reservationId, tupleType, tupleCount, reservationCachingServiceMock, 0);
-    when(reservationCachingServiceMock.getUnlockedReservation(reservationId, tupleType, tupleCount))
+            reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount, reservationCachingServiceMock, 0);
+    when(reservationCachingServiceMock.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount))
         .thenAnswer(RunWhenAccessedAnswer.of(retries, wfrc::cancel, null));
     assertNull(wfrc.call());
     verify(reservationCachingServiceMock, times(1))
-        .getUnlockedReservation(reservationId, tupleType, tupleCount);
+        .getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount);
   }
 
   @Test
@@ -50,13 +51,13 @@ class WaitForReservationCallableTest {
     Reservation expectedReservation = mock(Reservation.class);
     WaitForReservationCallable wfrc =
         new WaitForReservationCallable(
-            reservationId, tupleType, tupleCount, reservationCachingServiceMock, 0);
-    when(reservationCachingServiceMock.getUnlockedReservation(reservationId, tupleType, tupleCount))
+            reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount, reservationCachingServiceMock, 0);
+    when(reservationCachingServiceMock.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount))
         .thenReturn(null)
         .thenReturn(expectedReservation);
     assertEquals(expectedReservation, wfrc.call());
     verify(reservationCachingServiceMock, times(2))
-        .getUnlockedReservation(reservationId, tupleType, tupleCount);
+        .getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount);
   }
 
   @RequiredArgsConstructor(staticName = "of")

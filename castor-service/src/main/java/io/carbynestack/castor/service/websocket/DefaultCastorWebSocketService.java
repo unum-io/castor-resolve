@@ -102,6 +102,7 @@ public class DefaultCastorWebSocketService implements CastorWebSocketService {
           TupleChunkFragmentEntity.of(
               tupleChunk.getChunkId(),
               tupleChunk.getTupleType(),
+              tupleChunk.getTupleFamily(),              
               i * castorServiceProperties.getInitialFragmentSize(),
               Math.min(
                   (i + 1) * castorServiceProperties.getInitialFragmentSize(),

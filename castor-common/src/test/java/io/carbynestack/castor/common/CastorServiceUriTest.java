@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import java.net.URI;
 import java.util.UUID;
@@ -108,7 +109,7 @@ class CastorServiceUriTest {
     TupleType tupleType = TupleType.INPUT_MASK_GFP;
     int count = 3;
     URI actualRequestTuplesUri =
-        serviceUri.getIntraVcpRequestTuplesUri(requestId, tupleType, count);
+        serviceUri.getIntraVcpRequestTuplesUri(requestId, tupleType, count, TupleFamily.COWGEAR);
     assertEquals(INTRA_VCP_OPERATIONS_SEGMENT + TUPLES_ENDPOINT, actualRequestTuplesUri.getPath());
     assertThat(actualRequestTuplesUri.getQuery())
         .contains(

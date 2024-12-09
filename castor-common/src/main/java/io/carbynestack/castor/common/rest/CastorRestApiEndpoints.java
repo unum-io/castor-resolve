@@ -40,6 +40,8 @@ public final class CastorRestApiEndpoints {
 
   /** Parameter for specifying tuple type */
   public static final String DOWNLOAD_TUPLE_TYPE_PARAMETER = "tupletype";
+    /** Parameter for specifying tuple family */
+    public static final String DOWNLOAD_TUPLE_FAMILY_PARAMETER = "tuplefamily";
 
   /** Parameter for specifying the number of requested items */
   public static final String DOWNLOAD_COUNT_PARAMETER = "count";

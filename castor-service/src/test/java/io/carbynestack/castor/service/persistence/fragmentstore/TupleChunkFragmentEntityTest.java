@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.carbynestack.castor.common.entities.ActivationStatus;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,13 @@ class TupleChunkFragmentEntityTest {
     IllegalArgumentException actualIae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> TupleChunkFragmentEntity.of(invalidChunkId, tupleType, startIndex, endIndex));
+            () ->
+                TupleChunkFragmentEntity.of(
+                    invalidChunkId,
+                    tupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    startIndex,
+                    endIndex));
 
     assertEquals(
         TupleChunkFragmentEntity.ID_MUST_NOT_BE_NULL_EXCEPTION_MSG, actualIae.getMessage());
@@ -43,7 +50,13 @@ class TupleChunkFragmentEntityTest {
     IllegalArgumentException actualIae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> TupleChunkFragmentEntity.of(chunkId, invalidTupleType, startIndex, length));
+            () ->
+                TupleChunkFragmentEntity.of(
+                    chunkId,
+                    invalidTupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    startIndex,
+                    length));
 
     assertEquals(
         TupleChunkFragmentEntity.TUPLE_TYPE_MUST_NOT_BE_NULL_EXCEPTION_MSG, actualIae.getMessage());
@@ -59,7 +72,13 @@ class TupleChunkFragmentEntityTest {
     IllegalArgumentException actualIae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> TupleChunkFragmentEntity.of(chunkId, tupleType, invalidStartIndex, endIndex));
+            () ->
+                TupleChunkFragmentEntity.of(
+                    chunkId,
+                    tupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    invalidStartIndex,
+                    endIndex));
 
     assertEquals(
         String.format(
@@ -77,7 +96,13 @@ class TupleChunkFragmentEntityTest {
     IllegalArgumentException actualIae =
         assertThrows(
             IllegalArgumentException.class,
-            () -> TupleChunkFragmentEntity.of(chunkId, tupleType, startIndex, invalidEndIndex));
+            () ->
+                TupleChunkFragmentEntity.of(
+                    chunkId,
+                    tupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    startIndex,
+                    invalidEndIndex));
 
     assertEquals(
         String.format(
@@ -96,7 +121,13 @@ class TupleChunkFragmentEntityTest {
 
     TupleChunkFragmentEntity fragment =
         TupleChunkFragmentEntity.of(
-            chunkId, tupleType, startIndex, endIndex, activationStatus, reservationId);
+            chunkId,
+            tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
+            startIndex,
+            endIndex,
+            activationStatus,
+            reservationId);
 
     assertEquals(chunkId, fragment.getTupleChunkId());
     assertEquals(tupleType, fragment.getTupleType());

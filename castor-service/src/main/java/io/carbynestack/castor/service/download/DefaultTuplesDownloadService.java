@@ -58,22 +58,22 @@ public class DefaultTuplesDownloadService implements TuplesDownloadService {
   @Transactional
   @Override
   public <T extends Tuple<T, F>, F extends Field> TupleList<T, F> getTupleList(
-      Class<T> tupleCls, F field, long count, UUID requestId) {
-    TupleType tupleType = TupleType.findTupleType(tupleCls, field);
+      Class<T> tupleCls, String tupleFamily, F field, long count, UUID requestId) {
+    TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
     String reservationId = requestId + "_" + tupleType;
     Reservation reservation;
     if (castorServiceProperties.isMaster()) {
       reservation =
-          reservationCachingService.getUnlockedReservation(reservationId, tupleType, count);
+          reservationCachingService.getUnlockedReservation(reservationId, tupleType, tupleFamily, count);
       if (reservation == null) {
-        reservation = reservationCachingService.createReservation(reservationId, tupleType, count);
+        reservation = reservationCachingService.createReservation(reservationId, tupleType, tupleFamily, count);
         log.debug("Reservation successfully activated on all slaves.");
       }
     } else {
       reservation =
-          reservationCachingService.getReservationWithRetry(reservationId, tupleType, count);
+          reservationCachingService.getReservationWithRetry(reservationId, tupleType, tupleFamily, count);
     }
-    TupleList<T, F> result = consumeReservation(tupleCls, field, reservation);
+    TupleList<T, F> result = consumeReservation(tupleCls, tupleFamily, field, reservation);
     deleteReservedFragments(reservation);
     reservationCachingService.forgetReservation(reservationId);
     return result;
@@ -81,25 +81,25 @@ public class DefaultTuplesDownloadService implements TuplesDownloadService {
 
   /** @throws CastorServiceException if tuples cannot be retrieved from database */
   private <T extends Tuple<T, F>, F extends Field> TupleList<T, F> consumeReservation(
-      Class<T> tupleCls, F field, Reservation reservation) {
-    TupleList<T, F> tuples = new TupleList<>(tupleCls, field);
+      Class<T> tupleCls, String tupleFamily, F field, Reservation reservation) {
+    TupleList<T, F> tuples = new TupleList<>(tupleCls, tupleFamily, field);
     tuples.addAll(
         reservation.getReservations().stream()
             .flatMap(
-                reservationElement -> downloadTuples(tupleCls, field, reservationElement).stream())
+                reservationElement -> downloadTuples(tupleCls, tupleFamily, field, reservationElement).stream())
             .collect(Collectors.toList()));
     return tuples;
   }
 
   /** @throws CastorServiceException if tuples cannot be retrieved from database */
   private <T extends Tuple<T, F>, F extends Field> TupleList<T, F> downloadTuples(
-      Class<T> tupleCls, F field, ReservationElement reservationElement) {
+      Class<T> tupleCls, String tupleFamily, F field, ReservationElement reservationElement) {
     UUID tupleChunkId = reservationElement.getTupleChunkId();
-    TupleType tupleType = TupleType.findTupleType(tupleCls, field);
-    final long offset = reservationElement.getStartIndex() * tupleType.getTupleSize();
-    final long length = reservationElement.getReservedTuples() * tupleType.getTupleSize();
+    TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
+    final long offset = reservationElement.getStartIndex() * tupleType.getTupleSize(tupleFamily);
+    final long length = reservationElement.getReservedTuples() * tupleType.getTupleSize(tupleFamily);
     try {
-      return tupleStore.downloadTuples(tupleCls, field, tupleChunkId, offset, length);
+      return tupleStore.downloadTuples(tupleCls, tupleFamily, field, tupleChunkId, offset, length);
     } catch (Exception e) {
       throw new CastorServiceException(FAILED_RETRIEVING_TUPLES_EXCEPTION_MSG, e);
     }

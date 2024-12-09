@@ -103,7 +103,7 @@ class DefaultCastorIntraVcpClientTest {
     UUID requestId = UUID.fromString("3dc08ff2-5eed-49a9-979e-3a3ac0e4a2cf");
     int expectedCount = 2;
     TupleList<MultiplicationTriple<Field.Gfp>, Field.Gfp> expectedTripleList =
-        new TupleList(MultiplicationTriple.class, GFP);
+        new TupleList(MultiplicationTriple.class, TupleFamily.COWGEAR.getFamilyName(), GFP);
     expectedTripleList.add(new MultiplicationTriple(GFP, testShare, testShare, testShare));
     expectedTripleList.add(new MultiplicationTriple(GFP, testShare, testShare, testShare));
     CsResponseEntity<String, TupleList> givenResponseEntity =
@@ -112,13 +112,13 @@ class DefaultCastorIntraVcpClientTest {
 
     when(csHttpClientMock.getForEntity(
             serviceUri.getIntraVcpRequestTuplesUri(
-                requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, expectedCount),
+                requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, expectedCount, TupleFamily.COWGEAR),
             Collections.emptyList(),
             TupleList.class))
         .thenReturn(givenResponseEntity);
     TupleList actualTripleList =
         castorIntraVcpClient.downloadTupleShares(
-            requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, expectedCount);
+            requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, expectedCount, TupleFamily.COWGEAR);
 
     assertEquals(expectedTripleList, actualTripleList);
   }
@@ -136,7 +136,7 @@ class DefaultCastorIntraVcpClientTest {
             CastorClientException.class,
             () ->
                 castorIntraVcpClient.downloadTupleShares(
-                    requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, 1));
+                    requestId, TupleType.MULTIPLICATION_TRIPLE_GFP, 1, TupleFamily.COWGEAR));
 
     assertEquals(
         String.format(

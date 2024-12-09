@@ -36,15 +36,17 @@ public class TupleList<T extends Tuple<T, F>, F extends Field> extends ArrayList
 
   F field;
   Class<T> tupleCls;
+  String tupleFamily;
 
-  TupleList(Class<T> tupleCls, F field, List<T> tuples) {
+  TupleList(Class<T> tupleCls, String tupleFamily, F field, List<T> tuples) {
     super(tuples);
     this.field = field;
     this.tupleCls = tupleCls;
+    this.tupleFamily = tupleFamily;
   }
 
-  public TupleList(Class<T> tupleCls, F field) {
-    this(tupleCls, field, emptyList());
+  public TupleList(Class<T> tupleCls, String tupleFamily, F field) {
+    this(tupleCls, tupleFamily, field, emptyList());
   }
 
   /**
@@ -55,16 +57,16 @@ public class TupleList<T extends Tuple<T, F>, F extends Field> extends ArrayList
    * @throws IOException in case of errors reading InputStream
    */
   public static <T extends Tuple<T, F>, F extends Field> TupleList<T, F> fromStream(
-      Class<T> tupleCls, F field, InputStream inputStream, long length) throws IOException {
-    TupleType tupleType = TupleType.findTupleType(tupleCls, field);
+      Class<T> tupleCls, String tupleFamily, F field, InputStream inputStream, long length) throws IOException {
+    TupleType tupleType = TupleType.findTupleType(tupleCls, tupleFamily, field);
     try {
-      Constructor<T> constructor = tupleCls.getDeclaredConstructor(Field.class, InputStream.class);
+      Constructor<T> constructor = tupleCls.getDeclaredConstructor(Field.class, InputStream.class, String.class);
       List<T> tuples = new ArrayList<>();
 
-      for (int i = 0; i < length / tupleType.getTupleSize(); i++) {
-        tuples.add(constructor.newInstance(field, inputStream));
+      for (int i = 0; i < length / tupleType.getTupleSize(tupleFamily); i++) {
+        tuples.add(constructor.newInstance(field, inputStream, tupleFamily));
       }
-      return new TupleList<>(tupleCls, field, tuples);
+      return new TupleList<>(tupleCls, tupleFamily, field, tuples);
     } catch (Exception e) {
       throw new IOException("Failed reading tuples from stream.", e);
     }
@@ -87,6 +89,6 @@ public class TupleList<T extends Tuple<T, F>, F extends Field> extends ArrayList
             rethrow(exception);
           }
         });
-    return TupleChunk.of(tupleCls, field, uuid, outputStream.toByteArray());
+    return TupleChunk.of(tupleCls, tupleFamily, field, uuid, outputStream.toByteArray());
   }
 }

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.*;
 
 import io.carbynestack.castor.common.entities.MultiplicationTriple;
 import io.carbynestack.castor.common.entities.TupleChunk;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
@@ -70,7 +71,13 @@ class DefaultCastorWebSocketServiceTest {
   @Test
   void givenChunkHasNoTuples_whenUploadTupleChunk_thenThrowCastorClientException() {
     UUID chunkId = UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63");
-    TupleChunk tupleChunk = TupleChunk.of(MultiplicationTriple.class, GFP, chunkId, new byte[0]);
+    TupleChunk tupleChunk =
+        TupleChunk.of(
+            MultiplicationTriple.class,
+            TupleFamily.COWGEAR.getFamilyName(),
+            GFP,
+            chunkId,
+            new byte[0]);
     byte[] payload = SerializationUtils.serialize(tupleChunk);
 
     CastorClientException actualCce =
@@ -93,7 +100,12 @@ class DefaultCastorWebSocketServiceTest {
     TupleType tupleType = INPUT_MASK_GFP;
     byte[] tupleData = RandomUtils.nextBytes(tupleType.getTupleSize());
     TupleChunk tupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, tupleData);
+        TupleChunk.of(
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            tupleData);
     byte[] payload = SerializationUtils.serialize(tupleChunk);
 
     doThrow(expectedException).when(tupleStoreMock).save(tupleChunk);
@@ -119,7 +131,12 @@ class DefaultCastorWebSocketServiceTest {
     TupleType tupleType = INPUT_MASK_GFP;
     byte[] tupleData = RandomUtils.nextBytes(tupleType.getTupleSize());
     TupleChunk tupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, tupleData);
+        TupleChunk.of(
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            tupleData);
     byte[] payload = SerializationUtils.serialize(tupleChunk);
     int initialFragmentSize = 7;
 
@@ -132,7 +149,11 @@ class DefaultCastorWebSocketServiceTest {
         .keep(
             Collections.singletonList(
                 TupleChunkFragmentEntity.of(
-                    chunkId, tupleType, 0, tupleChunk.getNumberOfTuples())));
+                    chunkId,
+                    tupleType,
+                    TupleFamily.COWGEAR.getFamilyName(),
+                    0,
+                    tupleChunk.getNumberOfTuples())));
 
     verify(messagingTemplateMock, times(1))
         .convertAndSend(
@@ -145,7 +166,12 @@ class DefaultCastorWebSocketServiceTest {
     UUID chunkId = UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63");
     TupleType tupleType = INPUT_MASK_GFP;
     TupleChunk emptyTupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, new byte[0]);
+        TupleChunk.of(
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            new byte[0]);
 
     assertEquals(
         castorWebSocketService.generateFragmentsForChunk(emptyTupleChunk), Collections.emptyList());
@@ -159,11 +185,22 @@ class DefaultCastorWebSocketServiceTest {
     int numberOfTuples = initialFragmentSize * 2 - 1;
     byte[] tupleData = RandomUtils.nextBytes(tupleType.getTupleSize() * numberOfTuples);
     TupleChunk tupleChunk =
-        TupleChunk.of(tupleType.getTupleCls(), tupleType.getField(), chunkId, tupleData);
+        TupleChunk.of(
+            tupleType.getTupleCls(),
+            TupleFamily.COWGEAR.getFamilyName(),
+            tupleType.getField(),
+            chunkId,
+            tupleData);
     List<TupleChunkFragmentEntity> expectedFragments =
         Arrays.asList(
-            TupleChunkFragmentEntity.of(chunkId, tupleType, 0, initialFragmentSize),
-            TupleChunkFragmentEntity.of(chunkId, tupleType, initialFragmentSize, numberOfTuples));
+            TupleChunkFragmentEntity.of(
+                chunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), 0, initialFragmentSize),
+            TupleChunkFragmentEntity.of(
+                chunkId,
+                tupleType,
+                TupleFamily.COWGEAR.getFamilyName(),
+                initialFragmentSize,
+                numberOfTuples));
 
     when(servicePropertiesMock.getInitialFragmentSize()).thenReturn(initialFragmentSize);
 

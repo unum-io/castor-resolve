@@ -39,6 +39,7 @@ public class TuplesController {
   @GetMapping
   public ResponseEntity<TupleList> getTuples(
       @RequestParam(value = DOWNLOAD_TUPLE_TYPE_PARAMETER) String type,
+      @RequestParam(value = DOWNLOAD_TUPLE_FAMILY_PARAMETER, defaultValue = "CowGear") String family,
       @RequestParam(value = DOWNLOAD_COUNT_PARAMETER) long count,
       @RequestParam(value = DOWNLOAD_REQUEST_ID_PARAMETER) UUID requestId) {
     Assert.notNull(requestId, "Request identifier must not be omitted");
@@ -46,7 +47,7 @@ public class TuplesController {
     TupleType tupleType = TupleType.valueOf(type);
     return new ResponseEntity<>(
         tuplesDownloadService.getTupleList(
-            tupleType.getTupleCls(), tupleType.getField(), count, requestId),
+            tupleType.getTupleCls(), family, tupleType.getField(), count, requestId),
         HttpStatus.OK);
   }
 }

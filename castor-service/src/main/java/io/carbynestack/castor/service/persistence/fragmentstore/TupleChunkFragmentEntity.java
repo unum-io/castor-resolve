@@ -51,12 +51,14 @@ public class TupleChunkFragmentEntity implements Serializable {
   static final String START_INDEX_FIELD = "startIndex";
   static final String END_INDEX_FIELD = "endIndex";
   static final String TUPLE_TYPE_FIELD = "tupleType";
+  static final String TUPLE_FAMILY_FIELD = "tupleFamily";
   static final String ACTIVATION_STATUS_FIELD = "activationStatus";
   static final String RESERVATION_ID_FIELD = "reservationId";
   static final String TABLE_NAME = "tuple_chunk_fragment";
   static final String FRAGMENT_ID_COLUMN = "fragment_id";
   static final String TUPLE_CHUNK_ID_COLUMN = "tuple_chunk_id";
   static final String TUPLE_TYPE_COLUMN = "tuple_type";
+  static final String TUPLE_FAMILY_COLUMN = "tuple_family";
   static final String START_INDEX_COLUMN = "start_index";
   static final String END_INDEX_COLUMN = "end_index";
   static final String FRAGMENT_LENGTH_COLUMN = "fragment_length";
@@ -84,6 +86,12 @@ public class TupleChunkFragmentEntity implements Serializable {
   @Column(name = TUPLE_TYPE_COLUMN)
   @Enumerated(EnumType.STRING)
   private final TupleType tupleType;
+
+  /**
+   * The family of tuple (see {@link TupleType}) described by this {@link TupleChunkFragmentEntity}
+   */
+  @Column(name = TUPLE_FAMILY_COLUMN)
+  private final String tupleFamily;
 
   /**
    * The index of the first tuple within the {@link TupleChunk} referenced by this {@link
@@ -122,6 +130,7 @@ public class TupleChunkFragmentEntity implements Serializable {
   protected TupleChunkFragmentEntity() {
     this.tupleChunkId = null;
     this.tupleType = null;
+    this.tupleFamily = "";
     this.startIndex = 0;
   }
 
@@ -129,12 +138,14 @@ public class TupleChunkFragmentEntity implements Serializable {
   private TupleChunkFragmentEntity(
       UUID tupleChunkId,
       TupleType tupleType,
+      String tupleFamily,
       long startIndex,
       long endIndex,
       ActivationStatus activationStatus,
       String reservationId) {
     this.tupleChunkId = tupleChunkId;
     this.tupleType = tupleType;
+    this.tupleFamily = tupleFamily;
     this.startIndex = startIndex;
     this.endIndex = endIndex;
     this.activationStatus = activationStatus;
@@ -172,8 +183,8 @@ public class TupleChunkFragmentEntity implements Serializable {
    * @return a new {@link TupleChunkFragmentEntity} created with the given configuration
    */
   public static TupleChunkFragmentEntity of(
-      UUID tupleChunkId, TupleType tupleType, long startIndex, long endIndex) {
-    return of(tupleChunkId, tupleType, startIndex, endIndex, ActivationStatus.LOCKED, null);
+      UUID tupleChunkId, TupleType tupleType, String tupleFamily, long startIndex, long endIndex) {
+    return of(tupleChunkId, tupleType, tupleFamily, startIndex, endIndex, ActivationStatus.LOCKED, null);
   }
 
   /**
@@ -197,6 +208,7 @@ public class TupleChunkFragmentEntity implements Serializable {
   public static TupleChunkFragmentEntity of(
       UUID tupleChunkId,
       TupleType tupleType,
+      String tupleFamily,
       long startIndex,
       long endIndex,
       ActivationStatus activationStatus,
@@ -206,7 +218,7 @@ public class TupleChunkFragmentEntity implements Serializable {
     verifyStartIndex(startIndex);
     verifyEndIndex(startIndex, endIndex);
     return new TupleChunkFragmentEntity(
-        tupleChunkId, tupleType, startIndex, endIndex, activationStatus, reservationId);
+        tupleChunkId, tupleType, tupleFamily, startIndex, endIndex, activationStatus, reservationId);
   }
 
   /** @throws IllegalArgumentException if startIndex < 0. */

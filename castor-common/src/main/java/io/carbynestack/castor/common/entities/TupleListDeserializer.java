@@ -40,12 +40,13 @@ public class TupleListDeserializer extends StdDeserializer<TupleList> {
                   String.format(
                       "%s.%s",
                       Tuple.class.getPackage().getName(), node.get("tupleCls").textValue()));
+      String tupleFamily = objectMapper.readValue(node.get("tupleFamily").toString(), String.class);
       Field field = objectMapper.readValue(node.get("field").toString(), Field.class);
       List<Tuple> tuples = new ArrayList<>();
       for (JsonNode tupleNode : ((ArrayNode) node.get("tuples"))) {
         tuples.add(objectMapper.readValue(tupleNode.toString(), Tuple.class));
       }
-      return new TupleList(tupleCls, field, tuples);
+      return new TupleList(tupleCls, tupleFamily, field, tuples);
     } catch (ClassNotFoundException e) {
       throw new JsonParseException(jp, e.getMessage());
     }

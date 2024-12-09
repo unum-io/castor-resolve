@@ -14,6 +14,7 @@ import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.castor.service.CastorServiceApplication;
@@ -80,7 +81,7 @@ public class TupleChunkFragmentStorageServiceIT {
     long actualLength = 42;
 
     fragmentRepository.save(
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, actualStartIndex, actualLength));
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), actualStartIndex, actualLength));
 
     assertEquals(
         Optional.empty(),
@@ -101,6 +102,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             actualStartIndex,
             actualLength,
             UNLOCKED,
@@ -126,6 +128,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             actualStartIndex,
             actualEndIndex,
             UNLOCKED,
@@ -150,6 +153,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             actualStartIndex,
             actualEndIndex,
             UNLOCKED,
@@ -171,13 +175,13 @@ public class TupleChunkFragmentStorageServiceIT {
 
     TupleChunkFragmentEntity fragmentBefore =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, 0, requestedStartIndex - 1, UNLOCKED, null);
+            tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), 0, requestedStartIndex - 1, UNLOCKED, null);
     TupleChunkFragmentEntity expectedFragment =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, requestedStartIndex, requestedStartIndex + 1, UNLOCKED, null);
+            tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), requestedStartIndex, requestedStartIndex + 1, UNLOCKED, null);
     TupleChunkFragmentEntity fragmentAfter =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, requestedStartIndex + 1, Long.MAX_VALUE, UNLOCKED, null);
+            tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), requestedStartIndex + 1, Long.MAX_VALUE, UNLOCKED, null);
 
     fragmentRepository.save(fragmentBefore);
     fragmentRepository.save(expectedFragment);
@@ -196,7 +200,7 @@ public class TupleChunkFragmentStorageServiceIT {
 
     assertEquals(
         Optional.empty(),
-        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -206,12 +210,12 @@ public class TupleChunkFragmentStorageServiceIT {
 
     TupleChunkFragmentEntity lockedFragment =
         TupleChunkFragmentEntity.of(
-            UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63"), requestedTupleType, 0, 42);
+            UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63"), requestedTupleType, TupleFamily.COWGEAR.getFamilyName(), 0, 42);
     fragmentRepository.save(lockedFragment);
 
     assertEquals(
         Optional.empty(),
-        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -224,6 +228,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63"),
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             0,
             42,
             UNLOCKED,
@@ -232,7 +237,7 @@ public class TupleChunkFragmentStorageServiceIT {
 
     assertEquals(
         Optional.empty(),
-        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -243,6 +248,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63"),
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             0,
             42,
             UNLOCKED,
@@ -251,7 +257,7 @@ public class TupleChunkFragmentStorageServiceIT {
 
     assertEquals(
         Optional.of(expectedFragment),
-        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -263,6 +269,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63"),
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             0,
             42,
             UNLOCKED,
@@ -271,6 +278,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             UUID.fromString("3dc08ff2-5eed-49a9-979e-3a3ac0e4a2cf"),
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             0,
             42,
             UNLOCKED,
@@ -279,6 +287,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             UUID.fromString("80fbba1b-3da8-4b1e-8a2c-cebd65229fad"),
             requestedTupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             0,
             42,
             UNLOCKED,
@@ -291,7 +300,7 @@ public class TupleChunkFragmentStorageServiceIT {
 
     assertEquals(
         Optional.of(expectedFragment),
-        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        fragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -303,10 +312,10 @@ public class TupleChunkFragmentStorageServiceIT {
 
     TupleChunkFragmentEntity fragmentBefore =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, 0, requestedStartIndex, UNLOCKED, null);
+            tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), 0, requestedStartIndex, UNLOCKED, null);
     TupleChunkFragmentEntity fragmentAfter =
         TupleChunkFragmentEntity.of(
-            tupleChunkId, tupleType, requestedEndIndex, Long.MAX_VALUE, UNLOCKED, null);
+            tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), requestedEndIndex, Long.MAX_VALUE, UNLOCKED, null);
     fragmentRepository.save(fragmentBefore);
     fragmentRepository.save(fragmentAfter);
 
@@ -328,6 +337,7 @@ public class TupleChunkFragmentStorageServiceIT {
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             requestedStartIndex + 1,
             requestedEndIndex - 1,
             LOCKED,
@@ -348,17 +358,17 @@ public class TupleChunkFragmentStorageServiceIT {
     TupleType requestedType = TupleType.MULTIPLICATION_TRIPLE_GFP;
     TupleChunkFragmentEntity fragmentOfDifferentType =
         TupleChunkFragmentEntity.of(
-            UUID.randomUUID(), TupleType.INPUT_MASK_GFP, 0, Long.MAX_VALUE, UNLOCKED, null);
+            UUID.randomUUID(), TupleType.INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, UNLOCKED, null);
     TupleChunkFragmentEntity lockedFragment =
         TupleChunkFragmentEntity.of(
-            UUID.randomUUID(), requestedType, 0, Long.MAX_VALUE, LOCKED, null);
+            UUID.randomUUID(), requestedType, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, LOCKED, null);
     TupleChunkFragmentEntity reservedFragment =
         TupleChunkFragmentEntity.of(
-            UUID.randomUUID(), requestedType, 0, Long.MAX_VALUE, UNLOCKED, "alreadyReserved");
+            UUID.randomUUID(), requestedType, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, UNLOCKED, "alreadyReserved");
     TupleChunkFragmentEntity oneFragment =
-        TupleChunkFragmentEntity.of(UUID.randomUUID(), requestedType, 0, 12, UNLOCKED, null);
+        TupleChunkFragmentEntity.of(UUID.randomUUID(), requestedType, TupleFamily.COWGEAR.getFamilyName(), 0, 12, UNLOCKED, null);
     TupleChunkFragmentEntity anotherFragment =
-        TupleChunkFragmentEntity.of(UUID.randomUUID(), requestedType, 111, 141, UNLOCKED, null);
+        TupleChunkFragmentEntity.of(UUID.randomUUID(), requestedType, TupleFamily.COWGEAR.getFamilyName(), 111, 141, UNLOCKED, null);
 
     fragmentRepository.save(fragmentOfDifferentType);
     fragmentRepository.save(lockedFragment);
@@ -371,7 +381,7 @@ public class TupleChunkFragmentStorageServiceIT {
             - oneFragment.getStartIndex()
             + anotherFragment.getEndIndex()
             - anotherFragment.getStartIndex(),
-        fragmentStorageService.getAvailableTuples(requestedType));
+        fragmentStorageService.getAvailableTuples(requestedType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -381,13 +391,13 @@ public class TupleChunkFragmentStorageServiceIT {
 
     TupleChunkFragmentEntity fragmentForDifferentChunk =
         TupleChunkFragmentEntity.of(
-            differentChunkId, TupleType.INPUT_MASK_GFP, 0, Long.MAX_VALUE, LOCKED, null);
+            differentChunkId, TupleType.INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, LOCKED, null);
     TupleChunkFragmentEntity oneFragment =
         TupleChunkFragmentEntity.of(
-            requestedTupleChunkId, TupleType.MULTIPLICATION_TRIPLE_GFP, 0, 12, LOCKED, null);
+            requestedTupleChunkId, TupleType.MULTIPLICATION_TRIPLE_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, 12, LOCKED, null);
     TupleChunkFragmentEntity anotherFragment =
         TupleChunkFragmentEntity.of(
-            requestedTupleChunkId, TupleType.SQUARE_TUPLE_GF2N, 111, 141, LOCKED, null);
+            requestedTupleChunkId, TupleType.SQUARE_TUPLE_GF2N, TupleFamily.COWGEAR.getFamilyName(), 111, 141, LOCKED, null);
 
     fragmentForDifferentChunk = fragmentRepository.save(fragmentForDifferentChunk);
     oneFragment = fragmentRepository.save(oneFragment);
@@ -410,13 +420,13 @@ public class TupleChunkFragmentStorageServiceIT {
 
     TupleChunkFragmentEntity unreservedFragment =
         TupleChunkFragmentEntity.of(
-            chunkId, TupleType.INPUT_MASK_GFP, 0, Long.MAX_VALUE, LOCKED, null);
+            chunkId, TupleType.INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, LOCKED, null);
     TupleChunkFragmentEntity oneFragment =
         TupleChunkFragmentEntity.of(
-            chunkId, TupleType.MULTIPLICATION_TRIPLE_GFP, 0, 12, LOCKED, reservationId);
+            chunkId, TupleType.MULTIPLICATION_TRIPLE_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, 12, LOCKED, reservationId);
     TupleChunkFragmentEntity anotherFragment =
         TupleChunkFragmentEntity.of(
-            chunkId, TupleType.SQUARE_TUPLE_GF2N, 111, 141, LOCKED, reservationId);
+            chunkId, TupleType.SQUARE_TUPLE_GF2N, TupleFamily.COWGEAR.getFamilyName(), 111, 141, LOCKED, reservationId);
 
     unreservedFragment = fragmentRepository.save(unreservedFragment);
     fragmentRepository.save(oneFragment);
@@ -434,7 +444,7 @@ public class TupleChunkFragmentStorageServiceIT {
     UUID differentChunkId = UUID.fromString("80fbba1b-3da8-4b1e-8a2c-cebd65229fad");
     TupleChunkFragmentEntity fragmentForDifferentChunk =
         TupleChunkFragmentEntity.of(
-            differentChunkId, TupleType.INPUT_MASK_GFP, 0, Long.MAX_VALUE, LOCKED, null);
+            differentChunkId, TupleType.INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, LOCKED, null);
 
     fragmentRepository.save(fragmentForDifferentChunk);
 
@@ -446,7 +456,7 @@ public class TupleChunkFragmentStorageServiceIT {
     UUID requestedTupleChunkId = UUID.fromString("3fd7eaf7-cda3-4384-8d86-2c43450cbe63");
     TupleChunkFragmentEntity fragmentForDifferentChunk =
         TupleChunkFragmentEntity.of(
-            requestedTupleChunkId, TupleType.INPUT_MASK_GFP, 0, Long.MAX_VALUE, LOCKED, "reserved");
+            requestedTupleChunkId, TupleType.INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 0, Long.MAX_VALUE, LOCKED, "reserved");
 
     fragmentRepository.save(fragmentForDifferentChunk);
 

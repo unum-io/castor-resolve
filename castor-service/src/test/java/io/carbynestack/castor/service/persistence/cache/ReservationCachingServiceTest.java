@@ -16,10 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import io.carbynestack.castor.client.download.CastorInterVcpClient;
-import io.carbynestack.castor.common.entities.ActivationStatus;
-import io.carbynestack.castor.common.entities.Reservation;
-import io.carbynestack.castor.common.entities.ReservationElement;
-import io.carbynestack.castor.common.entities.TupleType;
+import io.carbynestack.castor.common.entities.*;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
 import io.carbynestack.castor.service.config.CastorCacheProperties;
@@ -166,7 +163,11 @@ class ReservationCachingServiceTest {
     String reservationId = "reservationId";
     ReservationElement existingReservationElement = new ReservationElement(chunkId, tupleCount, 0);
     Reservation existingReservation =
-        new Reservation(reservationId, tupleType, singletonList(existingReservationElement))
+        new Reservation(
+                reservationId,
+                tupleType,
+                TupleFamily.COWGEAR.getFamilyName(),
+                singletonList(existingReservationElement))
             .setStatus(ActivationStatus.UNLOCKED);
 
     when(redisTemplateMock.opsForValue()).thenReturn(valueOperationsMock);
@@ -174,7 +175,7 @@ class ReservationCachingServiceTest {
 
     assertEquals(
         existingReservation,
-        reservationCachingService.getUnlockedReservation(reservationId, tupleType, tupleCount));
+        reservationCachingService.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount));
   }
 
   @Test
@@ -214,7 +215,7 @@ class ReservationCachingServiceTest {
         new ReservationElement(tupleChunkId, requestedLength, requestedStartIndex);
     String reservationId = "testReservation";
     TupleType tupleType = MULTIPLICATION_TRIPLE_GFP;
-    Reservation r = new Reservation(reservationId, tupleType, singletonList(re));
+    Reservation r = new Reservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(re));
 
     when(redisTemplateMock.opsForValue()).thenReturn(valueOperationsMock);
     when(tupleChunkFragmentStorageServiceMock.findAvailableFragmentForChunkContainingIndex(
@@ -240,13 +241,14 @@ class ReservationCachingServiceTest {
         new ReservationElement(tupleChunkId, requestedLength, requestedStartIndex);
     String reservationId = "testReservation";
     TupleType tupleType = MULTIPLICATION_TRIPLE_GFP;
-    Reservation r = new Reservation(reservationId, tupleType, singletonList(re));
+    Reservation r = new Reservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(re));
     long existingFragmentStartIndex = 0;
     long existingFragmentEndIndex = 99;
     TupleChunkFragmentEntity existingFragment =
         TupleChunkFragmentEntity.of(
             tupleChunkId,
             tupleType,
+            TupleFamily.COWGEAR.getFamilyName(),
             existingFragmentStartIndex,
             existingFragmentEndIndex,
             ActivationStatus.UNLOCKED,
@@ -296,7 +298,7 @@ class ReservationCachingServiceTest {
             CastorServiceException.class,
             () ->
                 reservationCachingService.getReservationWithRetry(
-                    reservationId, tupleType, tupleCount));
+                    reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount));
     assertEquals(
         String.format(NO_RELEASED_TUPLE_RESERVATION_EXCEPTION_MSG, reservationId),
         actualCse.getMessage());
@@ -323,7 +325,7 @@ class ReservationCachingServiceTest {
 
     assertEquals(
         expectedReservationMock,
-        reservationCachingService.getReservationWithRetry(reservationId, tupleType, tupleCount));
+        reservationCachingService.getReservationWithRetry(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), tupleCount));
   }
 
   @Test
@@ -336,7 +338,7 @@ class ReservationCachingServiceTest {
             CastorServiceException.class,
             () ->
                 reservationCachingService.createReservation(
-                    "testReservationId", INPUT_MASK_GFP, 42));
+                    "testReservationId", INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 42));
 
     assertEquals(NOT_DECLARED_TO_BE_THE_MASTER_EXCEPTION_MSG, actualCse.getMessage());
   }
@@ -352,7 +354,7 @@ class ReservationCachingServiceTest {
             CastorServiceException.class,
             () ->
                 reservationCachingService.createReservation(
-                    "testReservationId", INPUT_MASK_GFP, 42));
+                    "testReservationId", INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 42));
 
     assertEquals(NOT_DECLARED_TO_BE_THE_MASTER_EXCEPTION_MSG, actualCse.getMessage());
   }
@@ -377,7 +379,7 @@ class ReservationCachingServiceTest {
 
     assertEquals(
         expectedReservationMock,
-        reservationCachingService.getUnlockedReservation(reservationId, tupleType, count));
+        reservationCachingService.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), count));
   }
 
   @Test
@@ -391,7 +393,7 @@ class ReservationCachingServiceTest {
     ReservationElement existingReservationElement = new ReservationElement(chunkId, count, 0);
     Reservation existingReservation =
         new Reservation(
-                reservationId, mismatchedTupleType, singletonList(existingReservationElement))
+                reservationId, mismatchedTupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(existingReservationElement))
             .setStatus(ActivationStatus.UNLOCKED);
 
     when(redisTemplateMock.opsForValue()).thenReturn(valueOperationsMock);
@@ -401,7 +403,7 @@ class ReservationCachingServiceTest {
         assertThrows(
             CastorServiceException.class,
             () ->
-                reservationCachingService.getUnlockedReservation(reservationId, tupleType, count));
+                reservationCachingService.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), count));
 
     assertEquals(
         String.format(
@@ -422,7 +424,7 @@ class ReservationCachingServiceTest {
     long count = 42;
     ReservationElement existingReservationElement = new ReservationElement(chunkId, count - 1, 0);
     Reservation existingReservation =
-        new Reservation(reservationId, tupleType, singletonList(existingReservationElement))
+        new Reservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), singletonList(existingReservationElement))
             .setStatus(ActivationStatus.UNLOCKED);
 
     when(redisTemplateMock.opsForValue()).thenReturn(valueOperationsMock);
@@ -432,7 +434,7 @@ class ReservationCachingServiceTest {
         assertThrows(
             CastorServiceException.class,
             () ->
-                reservationCachingService.getUnlockedReservation(reservationId, tupleType, count));
+                reservationCachingService.getUnlockedReservation(reservationId, tupleType, TupleFamily.COWGEAR.getFamilyName(), count));
 
     assertEquals(
         String.format(
@@ -461,7 +463,7 @@ class ReservationCachingServiceTest {
     CastorServiceException actualCse =
         assertThrows(
             CastorServiceException.class,
-            () -> reservationCachingService.createReservation(reservationId, INPUT_MASK_GFP, 42));
+            () -> reservationCachingService.createReservation(reservationId, INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 42));
 
     assertEquals(FAILED_CREATE_RESERVATION_EXCEPTION_MSG, actualCse.getMessage());
     assertEquals(expectedException, actualCse.getCause());
@@ -488,7 +490,7 @@ class ReservationCachingServiceTest {
     CastorServiceException actualCse =
         assertThrows(
             CastorServiceException.class,
-            () -> reservationCachingService.createReservation(reservationId, INPUT_MASK_GFP, 42));
+            () -> reservationCachingService.createReservation(reservationId, INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 42));
 
     assertEquals(FAILED_CREATE_RESERVATION_EXCEPTION_MSG, actualCse.getMessage());
     assertEquals(expectedException, actualCse.getCause());
@@ -513,6 +515,7 @@ class ReservationCachingServiceTest {
 
     assertEquals(
         expectedReservationMock,
-        reservationCachingService.createReservation(reservationId, INPUT_MASK_GFP, 42));
+        reservationCachingService.createReservation(
+            reservationId, INPUT_MASK_GFP, TupleFamily.COWGEAR.getFamilyName(), 42));
   }
 }

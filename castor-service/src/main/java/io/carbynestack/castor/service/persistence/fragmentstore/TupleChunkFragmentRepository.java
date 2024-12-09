@@ -28,8 +28,8 @@ public interface TupleChunkFragmentRepository
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
   Optional<TupleChunkFragmentEntity>
-      findFirstByTupleTypeAndActivationStatusAndReservationIdNullOrderByIdAsc(
-          TupleType tupleType, ActivationStatus activationStatus);
+      findFirstByTupleTypeAndTupleFamilyAndActivationStatusAndReservationIdNullOrderByIdAsc(
+          TupleType tupleType, String tupleFamily, ActivationStatus activationStatus);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
@@ -97,8 +97,11 @@ public interface TupleChunkFragmentRepository
               + " IS NULL "
               + "AND "
               + TUPLE_TYPE_FIELD
-              + "=:tupleType")
-  long getAvailableTupleByType(@Param("tupleType") TupleType type);
+              + "=:tupleType "
+              + "AND "
+              + TUPLE_FAMILY_FIELD
+              + "=:tupleFamily")
+  long getAvailableTupleByType(@Param("tupleType") TupleType type, @Param("tupleFamily") String tupleFamily);
 
   @Transactional
   @Modifying

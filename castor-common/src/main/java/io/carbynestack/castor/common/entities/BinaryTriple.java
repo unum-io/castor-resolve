@@ -14,27 +14,27 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A specialized {@link Tuple} of type <i>MultiplicationTriple</i>.
+ * A specialized {@link Tuple} of type <i>BinaryTriple</i>.
  *
  * @param <F> Defines the {@link Field} the {@link Tuple}'s data is element of
  */
-@JsonTypeName("MultiplicationTriple")
-public class MultiplicationTriple<F extends Field>
-    extends ArrayBackedTuple<MultiplicationTriple<F>, F> {
+@JsonTypeName("BinaryTriple")
+public class BinaryTriple<F extends Field>
+    extends ArrayBackedTuple<BinaryTriple<F>, F> {
 
   @JsonCreator
-  MultiplicationTriple(
+  BinaryTriple(
       @JsonProperty(value = "field", required = true) F field,
       @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @JsonProperty(value = "shares", required = true) Share... shares) {
     super(field, tupleFamily, shares);
   }
 
-  public MultiplicationTriple(F field, String tupleFamily, Share a, Share b, Share c) {
+  public BinaryTriple(F field, String tupleFamily, Share a, Share b, Share c) {
     super(field, tupleFamily, a, b, c);
   }
 
-  MultiplicationTriple(F field, InputStream inputStream, String tupleFamily) throws IOException {
+  BinaryTriple(F field, InputStream inputStream, String tupleFamily) throws IOException {
     super(field, inputStream, tupleFamily);
   }
 }

@@ -39,11 +39,12 @@ public abstract class Field implements Serializable {
 
   @JsonTypeName("Gfp")
   public static final class Gfp extends Field {
+
     @JsonCreator
     public Gfp(
         @JsonProperty(value = "name", required = true) String name,
         @JsonProperty(value = "elementSize", required = true) int elementSize) {
-      super(name, elementSize);
+      super(name, elementSize, new byte[elementSize]);
     }
   }
 
@@ -54,7 +55,7 @@ public abstract class Field implements Serializable {
     public Gf2n(
         @JsonProperty(value = "name", required = true) String name,
         @JsonProperty(value = "elementSize", required = true) int elementSize) {
-      super(name, elementSize);
+      super(name, elementSize, new byte[elementSize]);
     }
   }
 
@@ -64,4 +65,8 @@ public abstract class Field implements Serializable {
   /** Byte size of a {@link Share}'s value and mac in the given {@link Field} */
   @JsonProperty(required = true)
   int elementSize;
+
+  /** Static mac bytes. */
+  @Getter
+  byte[] macBytes;
 }

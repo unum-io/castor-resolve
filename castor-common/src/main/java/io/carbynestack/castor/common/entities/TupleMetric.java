@@ -28,4 +28,6 @@ public class TupleMetric implements Serializable {
   private long consumptionRate;
   /** The {@link TupleType} these {@link TupleMetric}s belong to */
   private TupleType type;
+
+  private TupleFamily family;
 }

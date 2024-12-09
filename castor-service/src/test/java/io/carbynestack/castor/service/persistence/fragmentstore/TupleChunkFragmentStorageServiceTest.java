@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import io.carbynestack.castor.common.entities.ActivationStatus;
+import io.carbynestack.castor.common.entities.TupleFamily;
 import io.carbynestack.castor.common.entities.TupleType;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import io.carbynestack.castor.common.exceptions.CastorServiceException;
@@ -41,7 +42,7 @@ class TupleChunkFragmentStorageServiceTest {
     long startIndex = 0;
     long endIndex = 12;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, endIndex);
 
     when(tupleChunkFragmentRepositoryMock.findFirstFragmentContainingAnyTupleOfSequence(
             tupleChunkId, startIndex, endIndex))
@@ -59,8 +60,8 @@ class TupleChunkFragmentStorageServiceTest {
     int fragmentSize = 12;
     List<TupleChunkFragmentEntity> fragments =
         Arrays.asList(
-            TupleChunkFragmentEntity.of(tupleChunkId, tupleType, 0, fragmentSize),
-            TupleChunkFragmentEntity.of(tupleChunkId, tupleType, fragmentSize, fragmentSize * 2));
+            TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), 0, fragmentSize),
+            TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), fragmentSize, fragmentSize * 2));
 
     when(tupleChunkFragmentRepositoryMock.findFirstFragmentContainingAnyTupleOfSequence(
             any(UUID.class), anyLong(), anyLong()))
@@ -77,9 +78,9 @@ class TupleChunkFragmentStorageServiceTest {
     TupleType tupleType = TupleType.MULTIPLICATION_TRIPLE_GFP;
     int fragmentSize = 12;
     TupleChunkFragmentEntity fragment1 =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, 0, fragmentSize);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), 0, fragmentSize);
     TupleChunkFragmentEntity conflictingFragment =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, fragmentSize, fragmentSize * 2);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), fragmentSize, fragmentSize * 2);
     List<TupleChunkFragmentEntity> fragments = Arrays.asList(fragment1, conflictingFragment);
 
     when(tupleChunkFragmentRepositoryMock.findFirstFragmentContainingAnyTupleOfSequence(
@@ -132,13 +133,13 @@ class TupleChunkFragmentStorageServiceTest {
       givenNoFragmentInDbMatchingCriteria_whenFindAvailableFragmentForType_thenReturnEmptyOptional() {
     TupleType requestedTupleType = TupleType.MULTIPLICATION_TRIPLE_GFP;
     when(tupleChunkFragmentRepositoryMock
-            .findFirstByTupleTypeAndActivationStatusAndReservationIdNullOrderByIdAsc(
-                requestedTupleType, ActivationStatus.UNLOCKED))
+        .findFirstByTupleTypeAndTupleFamilyAndActivationStatusAndReservationIdNullOrderByIdAsc(
+                requestedTupleType, TupleFamily.COWGEAR.getFamilyName(), ActivationStatus.UNLOCKED))
         .thenReturn(Optional.empty());
 
     assertEquals(
         Optional.empty(),
-        tupleChunkFragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        tupleChunkFragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -147,13 +148,13 @@ class TupleChunkFragmentStorageServiceTest {
     TupleChunkFragmentEntity actualFragmentMock = mock(TupleChunkFragmentEntity.class);
 
     when(tupleChunkFragmentRepositoryMock
-            .findFirstByTupleTypeAndActivationStatusAndReservationIdNullOrderByIdAsc(
-                requestedTupleType, ActivationStatus.UNLOCKED))
+        .findFirstByTupleTypeAndTupleFamilyAndActivationStatusAndReservationIdNullOrderByIdAsc(
+                requestedTupleType, TupleFamily.COWGEAR.getFamilyName(), ActivationStatus.UNLOCKED))
         .thenReturn(Optional.of(actualFragmentMock));
 
     assertEquals(
         Optional.of(actualFragmentMock),
-        tupleChunkFragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType));
+        tupleChunkFragmentStorageService.findAvailableFragmentWithTupleType(requestedTupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -163,12 +164,12 @@ class TupleChunkFragmentStorageServiceTest {
     long startIndex = 0;
     long endIndex = 12;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, endIndex);
     long splitIndex = 7;
     TupleChunkFragmentEntity expectedAlteredFragment =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, splitIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, splitIndex);
     TupleChunkFragmentEntity expectedNewFragment =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, splitIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), splitIndex, endIndex);
 
     when(tupleChunkFragmentRepositoryMock.save(any()))
         .thenAnswer(
@@ -190,7 +191,7 @@ class TupleChunkFragmentStorageServiceTest {
     long startIndex = 0;
     long endIndex = 12;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, endIndex);
     long illegalSplitIndex = endIndex;
 
     assertEquals(
@@ -207,12 +208,12 @@ class TupleChunkFragmentStorageServiceTest {
     long startIndex = 0;
     long endIndex = 12;
     TupleChunkFragmentEntity fragmentEntity =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, endIndex);
     long splitIndex = 7;
     TupleChunkFragmentEntity expectedNewFragment =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, splitIndex, endIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), splitIndex, endIndex);
     TupleChunkFragmentEntity expectedAlteredFragment =
-        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, startIndex, splitIndex);
+        TupleChunkFragmentEntity.of(tupleChunkId, tupleType, TupleFamily.COWGEAR.getFamilyName(), startIndex, splitIndex);
 
     when(tupleChunkFragmentRepositoryMock.save(any()))
         .thenAnswer(
@@ -270,10 +271,10 @@ class TupleChunkFragmentStorageServiceTest {
     TupleType tupleType = TupleType.MULTIPLICATION_TRIPLE_GFP;
     AopInvocationException expectedException = new AopInvocationException("expected");
 
-    when(tupleChunkFragmentRepositoryMock.getAvailableTupleByType(tupleType))
+    when(tupleChunkFragmentRepositoryMock.getAvailableTupleByType(tupleType, TupleFamily.COWGEAR.getFamilyName()))
         .thenThrow(expectedException);
 
-    assertEquals(0, tupleChunkFragmentStorageService.getAvailableTuples(tupleType));
+    assertEquals(0, tupleChunkFragmentStorageService.getAvailableTuples(tupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
@@ -281,10 +282,10 @@ class TupleChunkFragmentStorageServiceTest {
     TupleType tupleType = TupleType.MULTIPLICATION_TRIPLE_GFP;
     long availableTuples = 42;
 
-    when(tupleChunkFragmentRepositoryMock.getAvailableTupleByType(tupleType))
+    when(tupleChunkFragmentRepositoryMock.getAvailableTupleByType(tupleType, TupleFamily.COWGEAR.getFamilyName()))
         .thenReturn(availableTuples);
 
-    assertEquals(availableTuples, tupleChunkFragmentStorageService.getAvailableTuples(tupleType));
+    assertEquals(availableTuples, tupleChunkFragmentStorageService.getAvailableTuples(tupleType, TupleFamily.COWGEAR.getFamilyName()));
   }
 
   @Test
