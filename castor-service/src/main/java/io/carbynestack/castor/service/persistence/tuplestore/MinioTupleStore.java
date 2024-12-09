@@ -90,6 +90,7 @@ public class MinioTupleStore implements TupleStore {
   @Override
   public <T extends Tuple<T, F>, F extends Field> TupleList<T, F> downloadTuples(
       @NonNull Class<T> tupleCls,
+      @NonNull String tupleFamily,
       @NonNull F fieldType,
       @NonNull UUID tupleChunkId,
       long startIndex,
@@ -111,7 +112,7 @@ public class MinioTupleStore implements TupleStore {
                 .offset(startIndex)
                 .length(lengthToRead)
                 .build())) {
-      return TupleList.fromStream(tupleCls, fieldType, byteData, lengthToRead);
+      return TupleList.fromStream(tupleCls, tupleFamily, fieldType, byteData, lengthToRead);
     } catch (Exception e) {
       log.error("Exception occurred while reading tuple data from Minio.", e);
       throw new CastorServiceException(ERROR_WHILE_READING_TUPLES_EXCEPTION_MSG, e);

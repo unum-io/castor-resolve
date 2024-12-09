@@ -199,7 +199,7 @@ public class ReservationCachingService {
    * @throws CastorServiceException if method is called even tho this castor service is no master
    */
   @Transactional
-  public Reservation createReservation(String reservationId, TupleType tupleType, long count) {
+  public Reservation createReservation(String reservationId, TupleType tupleType, String tupleFamily, long count) {
     if (!dedicatedTransactionServiceOptional.isPresent()
         || !castorInterVcpClientOptional.isPresent()) {
       throw new CastorServiceException(NOT_DECLARED_TO_BE_THE_MASTER_EXCEPTION_MSG);
@@ -216,6 +216,7 @@ public class ReservationCachingService {
                       tupleChunkFragmentStorageService,
                       reservationId,
                       tupleType,
+                      tupleFamily,
                       count));
       keepReservation(reservation);
       reservation =
@@ -246,11 +247,11 @@ public class ReservationCachingService {
    */
   @Transactional(readOnly = true)
   public Reservation getReservationWithRetry(
-      String reservationId, TupleType tupleType, long numberOfTuples) {
+      String reservationId, TupleType tupleType, String tupleFamily, long numberOfTuples) {
     Reservation reservation = null;
     WaitForReservationCallable waitForReservationCallable =
         new WaitForReservationCallable(
-            reservationId, tupleType, numberOfTuples, this, slaveServiceProperties.getRetryDelay());
+            reservationId, tupleType, tupleFamily, numberOfTuples, this, slaveServiceProperties.getRetryDelay());
     try {
       reservation =
           executorService
@@ -279,7 +280,7 @@ public class ReservationCachingService {
    */
   @Nullable
   @Transactional(readOnly = true)
-  public Reservation getUnlockedReservation(String reservationId, TupleType tupleType, long count) {
+  public Reservation getUnlockedReservation(String reservationId, TupleType tupleType, String tupleFamily, long count) {
     ValueOperations<String, Object> ops = redisTemplate.opsForValue();
     Reservation reservation = (Reservation) ops.get(cachePrefix + reservationId);
     if (reservation != null) {

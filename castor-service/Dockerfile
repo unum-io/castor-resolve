@@ -4,11 +4,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-ARG BASE_IMAGE="ghcr.io/carbynestack/openjdk:jre8-20210827"
-
-FROM ${BASE_IMAGE}
+FROM ubuntu@sha256:10cbddb6cf8568f56584ccb6c866203e68ab8e621bb87038e254f6f27f955bbe
+# 20210827
+# https://hub.docker.com/layers/ubuntu/library/ubuntu/focal-20210827/images/sha256-10cbddb6cf8568f56584ccb6c866203e68ab8e621bb87038e254f6f27f955bbe
+# https://github.com/tianon/docker-brew-ubuntu-core/blob/49f002ba206e2cea2024aaa9f6f4ee4e9fb5c084/focal
 
 ARG RELEASE_PAGE="https://github.com/carbynestack/castor/releases"
+
+RUN set -uex \
+    && umask 0027 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates-java openjdk-11-jre-headless \
+# cleanup
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV GROUP_ID=1000 \
     GROUP_NAME="cs" \

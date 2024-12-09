@@ -21,6 +21,7 @@ import java.io.Serializable;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({
+  @JsonSubTypes.Type(value = DaBit.class, name = "DaBit"),
   @JsonSubTypes.Type(value = Bit.class, name = "Bit"),
   @JsonSubTypes.Type(value = InputMask.class, name = "InputMask"),
   @JsonSubTypes.Type(value = InverseTuple.class, name = "InverseTuple"),

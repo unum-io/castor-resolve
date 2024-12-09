@@ -41,7 +41,7 @@ public interface TupleStore {
    * @throws IllegalArgumentException if less than one tuple is requested.
    */
   <T extends Tuple<T, F>, F extends Field> TupleList<T, F> downloadTuples(
-      Class<T> tupleCls, F fieldType, UUID tupleChunkId, long startIndex, long lengthToRead);
+      Class<T> tupleCls, String tupleFamily, F fieldType, UUID tupleChunkId, long startIndex, long lengthToRead);
 
   /**
    * Deletes an object from the store

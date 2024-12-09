@@ -48,6 +48,9 @@ public class Reservation implements Serializable {
   /** The Type of tuples that is reserved by this reservation. */
   private final TupleType tupleType;
 
+  /** The family of tuples that is reserved by this reservation. */
+  private final String tupleFamily;
+
   /** The {@link ReservationElement}s that are part of this {@link Reservation} */
   private final List<ReservationElement> reservations;
 
@@ -73,6 +76,7 @@ public class Reservation implements Serializable {
   protected Reservation(
       @NonNull @JsonProperty(value = "reservationId", required = true) String reservationId,
       @NonNull @JsonProperty(value = "tupleType", required = true) TupleType tupleType,
+      @NonNull @JsonProperty(value = "tupleFamily", required = true) String tupleFamily,
       @NonNull @JsonProperty(value = "status", required = true) ActivationStatus status,
       @NonNull @JsonProperty(value = "reservations", required = true)
           List<ReservationElement> reservations) {
@@ -84,6 +88,7 @@ public class Reservation implements Serializable {
     }
     this.reservationId = reservationId;
     this.tupleType = tupleType;
+    this.tupleFamily = tupleFamily;
     this.status = status;
     this.reservations = reservations;
   }
@@ -101,7 +106,8 @@ public class Reservation implements Serializable {
   public Reservation(
       @NonNull String reservationId,
       @NonNull TupleType tupleType,
+      @NonNull String tupleFamily,
       @NonNull List<ReservationElement> reservations) {
-    this(reservationId, tupleType, ActivationStatus.LOCKED, reservations);
+    this(reservationId, tupleType, tupleFamily, ActivationStatus.LOCKED, reservations);
   }
 }

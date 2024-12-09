@@ -29,6 +29,7 @@ public class TupleListSerializer<T extends Tuple<T, F>, F extends Field>
       throws IOException {
     jgen.writeStartObject();
     jgen.writeObjectField("tupleCls", tupleList.getTupleCls().getSimpleName());
+    jgen.writeObjectField("tupleFamily", tupleList.getTupleFamily());
     jgen.writeObjectField("field", tupleList.getField());
     jgen.writeArrayFieldStart("tuples");
     for (Tuple tuple : tupleList) {

@@ -102,15 +102,17 @@ public class TupleChunkFragmentStorageService {
    * </ul>
    *
    * @param tupleType The requested type of tuples.
+   * @param tupleFamily The requested family of tuples.
    * @return Either an {@link Optional} containing the {@link TupleChunkFragmentEntity} that meets
    *     the described criteria or {@link Optional#empty()}.
    */
   @Transactional
   public Optional<TupleChunkFragmentEntity> findAvailableFragmentWithTupleType(
-      TupleType tupleType) {
+      TupleType tupleType,
+      String tupleFamily) {
     return fragmentRepository
-        .findFirstByTupleTypeAndActivationStatusAndReservationIdNullOrderByIdAsc(
-            tupleType, ActivationStatus.UNLOCKED);
+        .findFirstByTupleTypeAndTupleFamilyAndActivationStatusAndReservationIdNullOrderByIdAsc(
+            tupleType, tupleFamily, ActivationStatus.UNLOCKED);
   }
 
   /**
@@ -127,7 +129,7 @@ public class TupleChunkFragmentStorageService {
    * @return the given fragment with its reduced size
    */
   @Transactional
-  public TupleChunkFragmentEntity splitAt(TupleChunkFragmentEntity fragment, long index) {
+  public TupleChunkFragmentEntity splitAt(io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentEntity fragment, long index) {
     String oldFragmentState = null;
     if (log.isDebugEnabled()) {
       oldFragmentState = fragment.toString();
@@ -136,6 +138,7 @@ public class TupleChunkFragmentStorageService {
         TupleChunkFragmentEntity.of(
             fragment.getTupleChunkId(),
             fragment.getTupleType(),
+            fragment.getTupleFamily(),
             index,
             fragment.getEndIndex(),
             fragment.getActivationStatus(),
@@ -166,7 +169,7 @@ public class TupleChunkFragmentStorageService {
    *     the split index is not within the fragment's range
    */
   @Transactional
-  public TupleChunkFragmentEntity splitBefore(TupleChunkFragmentEntity fragment, long index) {
+  public TupleChunkFragmentEntity splitBefore(io.carbynestack.castor.service.persistence.fragmentstore.TupleChunkFragmentEntity fragment, long index) {
     if (index <= fragment.getStartIndex() || index >= fragment.getEndIndex()) {
       return fragment;
     }
@@ -178,6 +181,7 @@ public class TupleChunkFragmentStorageService {
         TupleChunkFragmentEntity.of(
             fragment.getTupleChunkId(),
             fragment.getTupleType(),
+            fragment.getTupleFamily(),
             index,
             fragment.getEndIndex(),
             fragment.getActivationStatus(),
@@ -222,9 +226,9 @@ public class TupleChunkFragmentStorageService {
    * @param type T{@link TupleType} of interest.
    * @return the number of available tuples for the given type.
    */
-  public long getAvailableTuples(TupleType type) {
+  public long getAvailableTuples(TupleType type, String tupleFamily) {
     try {
-      return fragmentRepository.getAvailableTupleByType(type);
+      return fragmentRepository.getAvailableTupleByType(type, tupleFamily);
     } catch (Exception e) {
       log.debug(
           String.format(

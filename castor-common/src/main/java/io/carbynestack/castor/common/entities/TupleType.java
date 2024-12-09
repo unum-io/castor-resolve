@@ -13,6 +13,7 @@ import static io.carbynestack.castor.common.entities.Field.GFP;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.carbynestack.castor.common.exceptions.CastorClientException;
 import java.util.Arrays;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,16 +23,18 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum TupleType {
-  BIT_GFP("bit_gfp", Bit.class, GFP, 1),
-  BIT_GF2N("bit_gf2n", Bit.class, GF2N, 1),
-  INPUT_MASK_GFP("inputmask_gfp", InputMask.class, GFP, 1),
-  INPUT_MASK_GF2N("inputmask_gf2n", InputMask.class, GF2N, 1),
-  INVERSE_TUPLE_GFP("inversetuple_gfp", InverseTuple.class, GFP, 2),
-  INVERSE_TUPLE_GF2N("inversetuple_gf2n", InverseTuple.class, GF2N, 2),
-  SQUARE_TUPLE_GFP("squaretuple_gfp", SquareTuple.class, GFP, 2),
-  SQUARE_TUPLE_GF2N("squaretuple_gf2n", SquareTuple.class, GF2N, 2),
-  MULTIPLICATION_TRIPLE_GFP("multiplicationtriple_gfp", MultiplicationTriple.class, GFP, 3),
-  MULTIPLICATION_TRIPLE_GF2N("multiplicationtriple_gf2n", MultiplicationTriple.class, GF2N, 3);
+  DABIT_GFP("dabit_gfp", DaBit.class, GFP, 1, 9),
+  DABIT_GF2N("dabit_gf2n", DaBit.class, GF2N, 1, 9),
+  BIT_GFP("bit_gfp", Bit.class, GFP, 1, 0),
+  BIT_GF2N("bit_gf2n", Bit.class, GF2N, 1,0),
+  INPUT_MASK_GFP("inputmask_gfp", InputMask.class, GFP, 1, 0),
+  INPUT_MASK_GF2N("inputmask_gf2n", InputMask.class, GF2N, 1,0),
+  INVERSE_TUPLE_GFP("inversetuple_gfp", InverseTuple.class, GFP, 2,0),
+  INVERSE_TUPLE_GF2N("inversetuple_gf2n", InverseTuple.class, GF2N, 2,0),
+  SQUARE_TUPLE_GFP("squaretuple_gfp", SquareTuple.class, GFP, 2,0),
+  SQUARE_TUPLE_GF2N("squaretuple_gf2n", SquareTuple.class, GF2N, 2,0),
+  MULTIPLICATION_TRIPLE_GFP("multiplicationtriple_gfp", MultiplicationTriple.class, GFP, 3,0),
+  MULTIPLICATION_TRIPLE_GF2N("multiplicationtriple_gf2n", MultiplicationTriple.class, GF2N, 3,0);
 
   /** Name identifier for the given {@link TupleType} */
   String tupleName;
@@ -41,6 +44,8 @@ public enum TupleType {
   @Getter @JsonIgnore transient Field field;
   /** Number of shares stored by a {@link Tuple} of the given {@link TupleType} */
   @Getter @JsonIgnore int arity;
+  /** Number of extra bits stored by a {@link Tuple} of the given {@link TupleType} */
+  @Getter @JsonIgnore int bitSize;
 
   /**
    * Gets the size in bytes of a share respectively element in a tuple
@@ -52,12 +57,34 @@ public enum TupleType {
   }
 
   /**
+   * Gets the size in bytes of a share respectively element in a tuple
+   *
+   * @return the size of a share of this tuple
+   */
+  public final int getShareSize(String tupleFamily) {
+    Map<String, Integer> multiplier = Map.of(
+    "Hemi", 1,
+    "CowGear", 2
+    );
+    return getField().getElementSize() * multiplier.get(tupleFamily); // value and mac key
+  }
+
+  /**
    * Gets the size in bytes of the tuple.
    *
    * @return the size of this tuple
    */
   public final int getTupleSize() {
-    return this.getArity() * this.getShareSize();
+    return this.getArity() * this.getShareSize() + this.bitSize;
+  }
+
+    /**
+   * Gets the size of bits in the tuple.
+   *
+   * @return the size of bits in this tuple
+   */
+  public final int getTupleBitSize() {
+    return this.bitSize;
   }
 
   @Override
@@ -76,7 +103,7 @@ public enum TupleType {
    * @throws CastorClientException if none of the defined {@link TupleType}s can be described by the
    *     given parameters
    */
-  public static TupleType findTupleType(Class<? extends Tuple> tupleCls, Field field)
+  public static TupleType findTupleType(Class<? extends Tuple> tupleCls, String tupleFamily, Field field)
       throws CastorClientException {
     return Arrays.stream(TupleType.values())
         .filter(type -> (type.getTupleCls().equals(tupleCls) && type.getField().equals(field)))

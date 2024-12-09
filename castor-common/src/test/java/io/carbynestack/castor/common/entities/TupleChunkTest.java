@@ -53,7 +53,11 @@ class TupleChunkTest {
     assertEquals(
         String.format(
             INVALID_DATA_LENGTH_EXCEPTION_MSG,
-            tupleType.getArity() * tupleType.getField().getElementSize()),
+            tupleType.getArity() * tupleType.getField().getElementSize(),
+            tupleType.getArity(),
+            invalidTupleData.length,
+            tupleType.getShareSize(),
+            tupleType.getField().getElementSize()),
         actualCce.getMessage());
   }
 }
